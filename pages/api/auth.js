@@ -1,83 +1,20 @@
 // pages/api/user/[id].js
-export default function handler(req, res) {   
+import publicTokenExchange from './public-token-exchange'
+import accessTokenExchange from './access-token-exchange'
+import getAccountInfo from './get-account-info'
+export default async function handler(req, res) {   
     
-    let {method,headers,bodys} = req  
-
-    bodys = 'Testings'
-    method = 'GET'
-    const envFile = process.env.client_id
-
+    let method = 'GET'
   
     if (method === 'GET') {
-        const data = [{ id: 1, name: 'Apple' }, { id: 2, name: 'Banana' }];
-        console.log(`${envFile}`)
-        const auth = async (req,res) => {
-            //creates the public token
-            try {
-                const public_token =  await fetch(`https://${process.env.env_url}/sandbox/public_token/create`,{
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        "client_id": `${process.env.client_id}`,
-                        "secret": `${process.env.environment_secret}`,
-                        "institution_id": "ins_20",
-                        "initial_products": ["auth"],
-                        "options": {
-                          "webhook": "https://www.genericwebhookurl.com/webhook"
-                        }
-                    })
-                  }
-                )
 
-                let res = await public_token.json()
+        const tokenResponse = await publicTokenExchange()
+        
+        const accessToken = await accessTokenExchange(tokenResponse)
 
-                console.log('res0',res)
+        const accountInfo = await getAccountInfo(accessToken)
 
-                
-
-                console.log('pub',public_token)
-                //public token exchange
-                const access_token = await fetch(`https://${process.env.env_url}/item/public_token/exchange`,{
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        "client_id": `${process.env.client_id}`,
-                        "secret": `${process.env.environment_secret}`,
-                        "public_token": `${res.public_token}`
-                      })
-                  }
-                )
-                
-                res = await access_token.json()
-                console.log('access',res)
-
-                const retrieved_balance = await fetch(`https://${process.env.env_url}/auth/get`,{
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        "client_id": `${process.env.client_id}`,
-                        "secret": `${process.env.environment_secret}`,
-                        "access_token": `${res.access_token}`
-                      })
-                  })
-                
-                res = await retrieved_balance.json()
-                console.log('retr',res)
-            }
-
-            catch(error) {
-                console.log(error)
-            }
-            
-        }
-        auth()
-        res.status(200).json('tested');
+        return res.status(200).json({message:'working as expected',data: accountInfo})
     
       // Handle POST request
     } else if (method === 'POST') {
