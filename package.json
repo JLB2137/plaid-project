@@ -3,9 +3,12 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "eslint-config-prettier": "^9.1.0",
     "next": "latest",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -13,5 +16,13 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.6",
+    "@types/react": "^18.3.11",
+    "eslint": "^8.35.0",
+    "eslint-config-next": "latest",
+    "prettier": "3.3.3",
+    "typescript": "^5.6.3"
   }
 }

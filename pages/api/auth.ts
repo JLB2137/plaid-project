@@ -2,19 +2,20 @@
 import publicTokenExchange from './public-token-exchange'
 import accessTokenExchange from './access-token-exchange'
 import getAccountInfo from './get-account-info'
-export default async function handler(req, res) {   
+import { NextApiRequest, NextApiResponse } from 'next'
+export default async function handler(req:NextApiRequest, res:NextApiResponse):Promise<void> {   
     
     let method = 'GET'
   
     if (method === 'GET') {
 
-        const tokenResponse = await publicTokenExchange()
+        // const tokenResponse = await publicTokenExchange()
         
-        const accessToken = await accessTokenExchange(tokenResponse)
+        // const accessToken = await accessTokenExchange(tokenResponse)
 
-        const accountInfo = await getAccountInfo(accessToken)
+        // const accountInfo = await getAccountInfo(accessToken)
 
-        return res.status(200).json({message:'working as expected',data: accountInfo})
+        //return res.status(200).json({message:'working as expected',data: accountInfo})
     
       // Handle POST request
     } else if (method === 'POST') {

@@ -1,5 +1,7 @@
+import { NextApiRequest, NextApiResponse } from "next"
+
 // pages/api/user/[id].js
-export default async function handler(req, res) {
+export default async function handler(req:NextApiRequest,res:NextApiResponse) {
        let public_token = req.body.public_token.public_token
        console.log('PUBTOKEN',public_token)
     try {
@@ -18,7 +20,7 @@ export default async function handler(req, res) {
 
         let result = await access_token.json()
         console.log('result',result)
-        res.status(200).json({ access_token: result });
+        res.status(200).json(result);
     }
         
     catch(error){
