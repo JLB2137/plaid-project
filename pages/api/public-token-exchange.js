@@ -20,7 +20,9 @@ export default async function handler(req, res) {
 
             let result = await public_token.json()
 
-            return result
+            console.log('resultofPublic Token',result)
+
+            res.status(200).json({ public_token: result });
         }
             
         catch(error){
