@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
 import { LinkToken } from "./types/types";
+import { PlaidLinkOnSuccess } from "react-plaid-link";
 
 const Link = () => {
   const [pubToken, setPubToken] = useState<string | null>(null); // Store the public token
@@ -35,7 +36,7 @@ const Link = () => {
   };
 
   // Callback function that runs after Plaid's link is successful
-  const onSuccess = React.useCallback(async (public_token, metadata) => {
+  const onSuccess: PlaidLinkOnSuccess = React.useCallback(async (public_token, metadata) => {
     console.log("Plaid public token received:", public_token);
     try {
       const response = await fetch("/api/access-token-exchange", {

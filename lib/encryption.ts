@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 
-export function encrypt(token:string):{iv:string,encryptedToken:string}{
+export default function encrypt(token:string):{iv:string,encryptedToken:string}{
     const algo = 'aes-256-cbc'
     const key = String(process.env.ENCRYPTION_KEY) 
     const iv = crypto.randomBytes(16)

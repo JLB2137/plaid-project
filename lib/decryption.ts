@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 
-export function encrypt(encryptedToken:string,ivHex:string):string{
+export default function encrypt(encryptedToken:string,ivHex:string):string{
     const algo = 'aes-256-cbc'
     const key = String(process.env.ENCRYPTION_KEY)    
     const iv = Buffer.from(ivHex,'hex')
