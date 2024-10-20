@@ -7,8 +7,8 @@ export default async function handler(req: NextApiRequest, res:NextApiResponse):
 
 const request = 
     {
-        "client_id": `${process.env.client_id}`,
-        "secret": `${process.env.environment_secret}`,
+        "PLAID_CLIENT_ID": `${process.env.PLAID_CLIENT_ID}`,
+        "secret": `${process.env.PLAID_SANDBOX_SECRET}`,
         "client_name": "JLB Investment Dashboard",
         "country_codes": ["US"],
         "language": "en",
@@ -18,7 +18,7 @@ const request =
             "products": ["assets"]
     }
     
-const tokenFetch = await fetch(`https://${process.env.env_url}/link/token/create`, {
+const tokenFetch = await fetch(`https://${process.env.PLAID_PLAID_PLAID_ENV_URL}/link/token/create`, {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',

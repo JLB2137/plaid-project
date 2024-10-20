@@ -9,15 +9,15 @@ export default async function handler(
   let access_token = req.body.access_token;
   try {
     const retrieved_balance = await fetch(
-      `https://${process.env.env_url}/auth/get`,
+      `https://${process.env.PLAID_PLAID_PLAID_ENV_URL}/auth/get`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          client_id: `${process.env.client_id}`,
-          secret: `${process.env.environment_secret}`,
+          PLAID_CLIENT_ID: `${process.env.PLAID_CLIENT_ID}`,
+          secret: `${process.env.PLAID_SANDBOX_SECRET}`,
           access_token: `${access_token}`,
         }),
       }

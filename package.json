@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "eslint-config-prettier": "^9.1.0",
+    "mongodb": "^6.9.0",
     "next": "latest",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -18,7 +19,7 @@
     "node": ">=18"
   },
   "devDependencies": {
-    "@types/node": "^22.7.6",
+    "@types/node": "^22.7.7",
     "@types/react": "^18.3.11",
     "eslint": "^8.35.0",
     "eslint-config-next": "latest",

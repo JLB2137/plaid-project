@@ -5,14 +5,14 @@ export default async function handler(req:NextApiRequest,res:NextApiResponse) {
        let public_token = req.body.public_token.public_token
        console.log('PUBTOKEN',public_token)
     try {
-        const access_token = await fetch(`https://${process.env.env_url}/item/public_token/exchange`,{
+        const access_token = await fetch(`https://${process.env.PLAID_PLAID_PLAID_ENV_URL}/item/public_token/exchange`,{
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                "client_id": `${process.env.client_id}`,
-                "secret": `${process.env.environment_secret}`,
+                "PLAID_CLIENT_ID": `${process.env.PLAID_CLIENT_ID}`,
+                "secret": `${process.env.PLAID_SANDBOX_SECRET}`,
                 "public_token": `${public_token}`
               })
           }
