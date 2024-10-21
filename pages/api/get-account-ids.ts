@@ -3,11 +3,11 @@ import { NextApiRequest, NextApiResponse } from "next"
 // pages/api/user/[id].js
 export default async function handler(req:NextApiRequest,res:NextApiResponse) {
       
-      const public_token = req.body.pubToken.public_token
+      const access_token = req.body.access_token
        console.log('actually the token',req.body)
-       console.log('PUBTOKEN',req.body.pubToken.public_token)
+       console.log('PUBTOKEN',req.body.access_token)
     try {
-        const access_token = await fetch(`https://${process.env.PLAID_ENV_URL}/item/public_token/exchange`,{
+        const grab_accounts = await fetch(`https://${process.env.PLAID_ENV_URL}/accounts/get`,{
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -15,14 +15,14 @@ export default async function handler(req:NextApiRequest,res:NextApiResponse) {
             body: JSON.stringify({
                 "client_id": `${process.env.PLAID_CLIENT_ID}`,
                 "secret": `${process.env.PLAID_SANDBOX_SECRET}`,
-                "public_token": `${public_token}`
+                "access_token": `${access_token}`
               })
           }
         )
 
-        let access_token_response = await access_token.json()
-        console.log('result',access_token_response)
-        res.status(200).json({access_token_response});
+        let account_id_response = await grab_accounts.json()
+        console.log('result',account_id_response)
+        res.status(200).json({account_id_response});
     }
         
     catch(error){

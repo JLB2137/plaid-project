@@ -6,6 +6,7 @@ import { PlaidLinkOnSuccess } from "react-plaid-link";
 const Link = () => {
   const [pubToken, setPubToken] = useState<string | null>(null); // Store the public token
   const [linkToken, setLinkToken] = useState<LinkToken | null>(null);
+  const [accountIds,setAccountIds] = useState<{} | null>(null)
 
   //currently input methods have no effect on apis
   const createLinkToken = async () => {
@@ -59,7 +60,7 @@ const Link = () => {
   }, []);
 
   const getBalances = async() => {
-
+    //need to check if pub token is null before
 
     try {
       const access_key = await fetch("/api/access-token-exchange", {
@@ -69,22 +70,36 @@ const Link = () => {
         method: 'POST',
         body: JSON.stringify({ pubToken }),
       });
-      let access_token = await access_key.json()
-      access_token = access_token.access_token
-      const accounts = ['Q5ABxElGl6UG3NaAZNRxIe4WLdnVpPtwlgZwQ','Z5A7Qvaya6UJe3RAW36Quj1EQbAaeKfe1EPe6']
-      const dbRoute = await fetch('/api/get-balance',{
+      let access_token_response = await access_key.json()
+      let access_token = access_token_response.access_token_response.access_token
+      console.log('accessToken',access_token)
+
+      const get_accounts = await fetch("/api/get-account-ids",{
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+        body: JSON.stringify({ access_token }),
+      })
+      let account_id_response = await get_accounts.json()
+      let account_ids = account_id_response.account_id_response.accounts
+      console.log('account_id_response',account_ids)
+    
+      //will need to be setup to be adjusted by front-end
+      const accounts = [account_ids[0].account_id,account_ids[1].account_id]
+      const balances = await fetch('/api/get-balance',{
         headers: {
           'Content-Type': 'application/json',
         },
         method: 'POST',
         body: JSON.stringify({
           access_token: access_token,
-          accounts: accounts
+          accounts: accounts,
 
         })
       })
-      const newData = await dbRoute.json()
-      console.log("Access token received:", newData); // Log access token
+      const newData = await balances.json()
+      console.log("BALANCES:", newData); // Log access token
       // You can store the access token in the state if needed
       return;
     } catch (error) {
@@ -136,6 +151,9 @@ const Link = () => {
     <div>
       <button onClick={() => open()} disabled={!ready}>
         Link account
+      </button>
+      <button onClick={() => getBalances()} disabled={!ready}>
+        Get Balances
       </button>
     </div>
   );
