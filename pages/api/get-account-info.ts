@@ -9,7 +9,7 @@ export default async function handler(
   let access_token = req.body.access_token;
   try {
     const retrieved_balance = await fetch(
-      `https://${process.env.PLAID_PLAID_PLAID_ENV_URL}/auth/get`,
+      `https://${process.env.PLAID_ENV_URL}/auth/get`,
       {
         method: "POST",
         headers: {
