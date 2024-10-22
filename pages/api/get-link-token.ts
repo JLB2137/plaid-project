@@ -15,7 +15,7 @@ const request =
         "user": {
             "client_user_id": `${process.env.SITE_USER_ID}`
         },
-            "products": ["assets"]
+            "products": ["assets","transactions"]
     }
     
 const tokenFetch = await fetch(`https://${process.env.PLAID_ENV_URL}/link/token/create`, {

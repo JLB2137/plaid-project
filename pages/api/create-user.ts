@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next"
+import decrypt from '../../lib/decryption'
 
 // pages/api/user/[id].js
 export default async function handler(req:NextApiRequest,res:NextApiResponse) {
@@ -27,7 +28,6 @@ export default async function handler(req:NextApiRequest,res:NextApiResponse) {
     
             let result = await balances.json()
             console.log('result',result)
-            console.log('api',`${process.env.FIREBASE_API_KEY}`)
             res.status(200).json({result:result});
         }
             

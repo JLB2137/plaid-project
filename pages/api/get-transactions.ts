@@ -5,29 +5,24 @@ export default async function handler(req:NextApiRequest,res:NextApiResponse) {
         //need to adjust this so it includes accounts
 
     const access_token:string | null = req.body.access_token
-    let account_ids:string | null
-    req.body.accounts? account_ids = req.body.accounts : account_ids=null
-    console.log('accountIDs',account_ids)
         try {
-            const balances = await fetch(`https://${process.env.PLAID_ENV_URL}/accounts/balance/get`,{
+            const transactions = await fetch(`https://${process.env.PLAID_ENV_URL}/transactions/get`,{
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
+                    "secret":`${process.env.PLAID_SANDBOX_SECRET}`,
                     "client_id": `${process.env.PLAID_CLIENT_ID}`,
-                    "secret": `${process.env.PLAID_SANDBOX_SECRET}`,
                     "access_token":`${access_token}`,
-                    "options": {
-                      "account_ids": account_ids
-                    }
+                    "start_date": '2024-07-01',
+                    "end_date":'2024-11-01',
                   })
               }
             )
     
-            let result = await balances.json()
+            let result = await transactions.json()
             console.log('result',result)
-            console.log('api',`${process.env.FIREBASE_API_KEY}`)
             res.status(200).json({result:result});
         }
             

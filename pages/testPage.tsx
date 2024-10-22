@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
 import { LinkToken } from "./types/types";
 import { PlaidLinkOnSuccess } from "react-plaid-link";
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import firebaseAppStartup from './api/firebase-config'
 
 const Link = () => {
   const [pubToken, setPubToken] = useState<string | null>(null); // Store the public token
@@ -98,9 +100,21 @@ const Link = () => {
 
         })
       })
-      const newData = await balances.json()
+      let newData = await balances.json()
       console.log("BALANCES:", newData); // Log access token
       // You can store the access token in the state if needed
+      const transactions = await fetch('/api/get-transactions',{
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+        body: JSON.stringify({
+          access_token: access_token,
+
+        })
+      })
+      newData = await transactions.json()
+      console.log("TRANSACTIONS:", newData); // Log access token
       return;
     } catch (error) {
       console.error("Error exchanging public token:", error);
@@ -136,7 +150,41 @@ const Link = () => {
 
   console.log("here", pubToken);
   console.log("linkToken", linkToken);
-  console.log
+  const firebaseLogin = async () => {
+
+    
+    const app = await firebaseAppStartup()
+    console.log('app',app)
+
+  //initialize auth
+    const provider = new GoogleAuthProvider();
+    const auth = await getAuth();
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential?.accessToken;
+        // The signed-in user info.
+        const user = result.user;
+        // IdP data available using getAdditionalUserInfo(result)
+        // ...
+        console.log('user',user)
+      }).catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // The email of the user's account used.
+        const email = error.customData.email;
+        // The AuthCredential type that was used.
+        const credential = GoogleAuthProvider.credentialFromError(error);
+        // ...
+      });
+
+  
+
+
+
+  }
 
 
 
@@ -154,6 +202,9 @@ const Link = () => {
       </button>
       <button onClick={() => getBalances()} disabled={!ready}>
         Get Balances
+      </button>
+      <button onClick={() => firebaseLogin()} disabled={!ready}>
+        Sign In
       </button>
     </div>
   );
