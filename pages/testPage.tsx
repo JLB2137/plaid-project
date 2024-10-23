@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
 import { LinkToken } from "./types/types";
 import { PlaidLinkOnSuccess } from "react-plaid-link";
+import { initializeApp, getApps } from "firebase/app";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import firebaseAppStartup from './api/firebase-config'
 
 const Link = () => {
   const [pubToken, setPubToken] = useState<string | null>(null); // Store the public token
@@ -103,6 +103,7 @@ const Link = () => {
       let newData = await balances.json()
       console.log("BALANCES:", newData); // Log access token
       // You can store the access token in the state if needed
+      //This has an issue loading too quickly based on the above...needs additional info/setup
       const transactions = await fetch('/api/get-transactions',{
         headers: {
           'Content-Type': 'application/json',
@@ -151,14 +152,28 @@ const Link = () => {
   console.log("here", pubToken);
   console.log("linkToken", linkToken);
   const firebaseLogin = async () => {
-
     
-    const app = await firebaseAppStartup()
-    console.log('app',app)
+
+    const firebaseConfig = {
+      apiKey: 'AIzaSyCYYK43AFwmfljp0JeA3PajLePFv_tSYzU',
+      authDomain: "jlb-investments.firebaseapp.com",
+      projectId: "jlb-investments",
+      storageBucket: "jlb-investments.appspot.com",
+      messagingSenderId: "250755462166",
+      appId: "1:250755462166:web:e60614c2b96091b828b137",
+      measurementId: "G-SFR76BCE7B"
+    };
+    let app
+    if(!getApps().length){
+      app = await initializeApp(firebaseConfig);
+    }else{
+      app = getApps()[0]
+    }
 
   //initialize auth
     const provider = new GoogleAuthProvider();
-    const auth = await getAuth();
+    const auth = getAuth()
+    console.log('auth',auth)
     signInWithPopup(auth, provider)
       .then((result) => {
         // This gives you a Google Access Token. You can use it to access the Google API.
