@@ -2,29 +2,29 @@
 import clientPromise from '../../lib/mongodb'
 export class PlaidAccess{
 
-    client_id?: string
-    secret?: string
-    env_url?:string
-    client_user_id?:string
-    headers?: HeadersInit
-    method?: string
-    products?: string[]
-    client_collection?: string
+    client_id!: string
+    secret!: string
+    env_url!:string
+    client_user_id!:string
+    headers!: HeadersInit
+    method!: string
+    products!: string[]
+    client_collection!: string
 
 
 
 
     contructor(products:string[]){
-        this.client_id = process.env.PLAID_CLIENT_ID
-        this.secret = process.env.PLAID_SANDBOX_SECRET
-        this.env_url = process.env.PLAID_ENV_URL
+        this.client_id = process.env.PLAID_CLIENT_ID!
+        this.secret = process.env.PLAID_SANDBOX_SECRET!
+        this.env_url = process.env.PLAID_ENV_URL!
         //NEED to replace this user ID with one that is encrypted from google prof
-        this.client_user_id = process.env.SITE_USER_ID
-        this.method = 'POST'
-        this.headers = {'Content-Type': 'application/json'}
+        this.client_user_id = process.env.SITE_USER_ID!
+        this.method = 'POST'!
+        this.headers = {'Content-Type': 'application/json'}!
         //adjust this based on what I need
         this.products? products : ["assets","transactions"]
-        this.client_collection = process.env.CLIENT_COLLECTION
+        this.client_collection = process.env.CLIENT_COLLECTION!
 
     }
 
@@ -62,7 +62,7 @@ export class PlaidAccess{
         const db = client.db(process.env.CLIENT_DB)
         //need to call the encrypt to get the encrypted user id
         const userSearchFilter = {user_id: this.client_user_id}
-        const user = await db.collection(this.client_collection).findOne(userSearchFilter)
+        const user = await db.collection(this.client_collection!).findOne(userSearchFilter)
         
         if(user?.length>0){
             const accessTokenList = user?.access_tokens
