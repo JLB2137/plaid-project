@@ -56,6 +56,7 @@ export class PlaidAccess{
     //first check if user already exists
     //either create or update on db
     getAccessToken() {
+        //need to exchange the public token for the access token
         //may need to adjust this so that it requires an input to determine products for this access token??
         //setup for the db to update the users access token list when receiving the token
         const client = await clientPromise
@@ -64,8 +65,8 @@ export class PlaidAccess{
         const userSearchFilter = {user_id: this.client_user_id}
         const user = await db.collection(this.client_collection!).findOne(userSearchFilter)
         
-        if(user?.length>0){
-            const accessTokenList = user?.access_tokens
+        if(user){
+            const accessTokenList = user.access_tokens
             accessTokenList.push(accessToken)
             const updatedAccessTokenList = {
                 //need to create the access token above from the exchange w public
