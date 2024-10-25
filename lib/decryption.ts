@@ -1,8 +1,7 @@
 import crypto from 'crypto'
 
-export default function decrypt(encryptedToken:string,ivHex:string):string{
+export default function decrypt(encryptedToken:string,ivHex:string,key:string):string{
     const algo = 'aes-256-cbc'
-    const key = String(process.env.ENCRYPTION_KEY)    
     const iv = Buffer.from(ivHex,'hex')
     const decipher = crypto.createDecipheriv(algo,key,iv)
 

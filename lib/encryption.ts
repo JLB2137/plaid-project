@@ -1,18 +1,26 @@
-import crypto from 'crypto'
+import crypto from 'crypto';
 
-export default function encrypt(token:string):{iv:string,encryptedToken:string}{
-    const algo = 'aes-256-cbc'
-    const key = String(process.env.ENCRYPTION_KEY) 
-    const iv = crypto.randomBytes(16)
-    const cipher = crypto.createCipheriv(algo,key,iv)
+// Common algorithm used for both encryption and decryption
+const algo = 'aes-256-cbc';
 
-    let encryptedToken = cipher.update(token,'utf8','hex')
-    encryptedToken+=cipher.final('hex')
+// Function to encrypt data
+export function encrypt(plainText: string, key: Buffer, ivHex: string): string {
+    const iv = Buffer.from(ivHex, 'hex');
+    const cipher = crypto.createCipheriv(algo, key, iv);
 
-    return {
-        iv: iv.toString('hex'),
-        encryptedToken: encryptedToken
-        
-    }
+    let encrypted = cipher.update(plainText, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+
+    return encrypted;
 }
 
+// Function to decrypt data
+export function decrypt(encryptedToken: string, key: Buffer, ivHex: string): string {
+    const iv = Buffer.from(ivHex, 'hex');
+    const decipher = crypto.createDecipheriv(algo, key, iv);
+
+    let decryptedToken = decipher.update(encryptedToken, 'hex', 'utf8');
+    decryptedToken += decipher.final('utf8');
+
+    return decryptedToken;
+}

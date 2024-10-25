@@ -1,20 +1,27 @@
 import clientPromise from '../lib/mongodb'
+import { encrypt } from './encryption';
+import crypto from 'crypto'
 export class PlaidAccess{
 
     secret!: string;
     client_id!: string;
     env_url!: string;
     client_user_id!:string
+    encryption_key!: Buffer
+    ivHex!: string
 
-    constructor(secret:string, client_id:string, env_url:string, client_user_id:string){
+    constructor(secret:string, client_id:string, env_url:string, client_user_id:string, encryption_key:Buffer){
         this.secret = secret
         this.client_id = client_id
         this.env_url= env_url
+        this.encryption_key = encryption_key
+        this.ivHex = crypto.randomBytes(16).toString('hex');
         this.client_user_id = client_user_id
 
     }
 
     async createLinkToken (products:string) {
+
         const body = {
             "client_id": this.client_id,
             "secret": this.secret,
@@ -58,7 +65,8 @@ export class PlaidAccess{
         )
 
         const accessTokenResponse = await accessTokenCall.json()
-        const accessToken = accessTokenResponse.access_token
+        let accessToken = accessTokenResponse.access_token
+        accessToken = encrypt(accessToken,this.encryption_key,this.ivHex)
         
 
         //need to exchange the public token for the access token
@@ -78,7 +86,7 @@ export class PlaidAccess{
                 //need to create the access token above from the exchange w public
                 $set: { access_tokens: accessTokenList }
             }
-            const result = await db.collection(client_collection).updateOne(userSearchFilter,updatedAccessTokenList)
+            await db.collection(client_collection).updateOne(userSearchFilter,updatedAccessTokenList)
 
         }else{
             //creates the document for the new user
@@ -88,7 +96,7 @@ export class PlaidAccess{
                 
 
             }
-            const result = await db.collection(client_collection).insertOne(userConfig)
+            await db.collection(client_collection).insertOne(userConfig)
         }
         
 

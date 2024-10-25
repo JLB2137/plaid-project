@@ -15,7 +15,7 @@ const Link = () => {
 
 
   
-  const onSuccess: PlaidLinkOnSuccess = React.useCallback(async (public_token, metadata) => {
+  const onSuccess: PlaidLinkOnSuccess = async (public_token, metadata) => {
     console.log("Plaid public token received:", public_token);
 
     console.log('metadata',metadata)
@@ -29,6 +29,8 @@ const Link = () => {
         body: JSON.stringify({
           methodChoice: 'getAccessToken',
           public_token: public_token,
+          jlbInvestmentsId: user
+
         })
       })
       setLinkToken(null)
@@ -36,7 +38,7 @@ const Link = () => {
     } catch (error) {
       console.error("Error exchanging public token:", error);
     }
-  }, []);
+  };
 
 
   //need to find a way to clean this up
@@ -69,6 +71,7 @@ const Link = () => {
       appId: "1:250755462166:web:e60614c2b96091b828b137",
       measurementId: "G-SFR76BCE7B"
     };
+
     let app
     //check if app has already been initialized
     if(!getApps().length){
