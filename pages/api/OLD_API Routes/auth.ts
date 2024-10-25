@@ -1,7 +1,7 @@
 // pages/api/user/[id].js
-import publicTokenExchange from './public-token-exchange'
+import publicTokenExchange from '../public-token-exchange'
 import accessTokenExchange from './access-token-exchange'
-import getAccountInfo from './get-account-info'
+import getAccountInfo from '../get-account-info'
 import { NextApiRequest, NextApiResponse } from 'next'
 export default async function handler(req:NextApiRequest, res:NextApiResponse):Promise<void> {   
     

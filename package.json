@@ -8,6 +8,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@types/firebase": "^2.4.32",
     "@types/plaid-link": "^2.0.15",
     "eslint-config-prettier": "^9.1.0",
     "firebase": "^11.0.0",

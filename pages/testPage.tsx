@@ -1,37 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
-import { LinkToken } from "./types/types";
+import { UserInfo } from '../node_modules/@firebase/auth-types'
 import { PlaidLinkOnSuccess } from "react-plaid-link";
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 
 const Link = () => {
   const [linkToken, setLinkToken] = useState<string | null>(null);
-  const [siteUserID,setSiteUserID] = useState<string | null>(null)
+  const [user,setUser] = useState<UserInfo | null>(null)
+  const [signInStatus,setSignInStatus] = useState<string>('Please Sign in First')
+  const [shouldPlaidOpen,setShouldPlaidOpen] = useState<boolean>(false)
 
-  const createLinkTokenV2 = async () => {
-    try {
-      const linkTokenCall = await fetch('/api/plaid-access',{
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        method: 'POST',
-        body: JSON.stringify({
-          methodChoice: 'createLinkToken',
-          products: ["assets","transactions"]
-        })
-      })
 
-      const response = await linkTokenCall.json()
-
-      setLinkToken(response.linkToken.link_token)
-      
-      console.log('LinkToken reponse',response)
-
-    } catch (error) {
-      console.error("Error exchanging public token:", error);
-    }
-  };
 
 
   
@@ -51,22 +31,13 @@ const Link = () => {
           public_token: public_token,
         })
       })
+      setLinkToken(null)
       console.log('acces',await accessTokenSave)
     } catch (error) {
       console.error("Error exchanging public token:", error);
     }
   }, []);
 
-  // Fetch public token on mount
-  useEffect(() => {
-    const fetchToken = async () => {
-      await createLinkTokenV2();
-
-      //await getPublicToken(); // Fetch the public token and set it in state
-    };
-
-    fetchToken();
-  }, []); // Empty dependency array ensures this only runs once on component mount
 
   //need to find a way to clean this up
   let config = {
@@ -86,7 +57,6 @@ const Link = () => {
     };
   }
 
-  console.log("linkToken", linkToken);
   const firebaseLogin = async () => {
     
 
@@ -110,18 +80,18 @@ const Link = () => {
   //initialize auth
     const provider = new GoogleAuthProvider();
     const auth = getAuth()
-    console.log('auth',auth)
     signInWithPopup(auth, provider)
       .then((result) => {
         // This gives you a Google Access Token. You can use it to access the Google API.
         const credential = GoogleAuthProvider.credentialFromResult(result);
         const token = credential?.accessToken;
         // The signed-in user info.
-        const user = result.user;
+        const user: UserInfo = result.user;
         // IdP data available using getAdditionalUserInfo(result)
         // ...
-        console.log('user',user)
-        
+        setUser(user)
+        setSignInStatus('Link Accounts')
+                
       }).catch((error) => {
         // Handle Errors here.
         const errorCode = error.code;
@@ -142,23 +112,59 @@ const Link = () => {
 
 
 
+  const createLinkTokenV2 = async () => {
+    try {
+      const linkTokenCall = await fetch('/api/plaid-access',{
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+        body: JSON.stringify({
+          methodChoice: 'createLinkToken',
+          products: ["assets","transactions"],
+          jlbInvestmentsId: user
+        })
+      })
+
+      const response = await linkTokenCall.json()
+
+      setLinkToken(response.linkToken.link_token)
+
+      setShouldPlaidOpen(true)
+      
+      console.log('LinkToken reponse',response)
+
+    } catch (error) {
+      console.error("Error exchanging public token:", error);
+    }
+    
+  };
+
+  
 
   const { open, ready, exit } = usePlaidLink(config);
 
+  useEffect(()=>{
+    if(ready){
+      open()
+    }
+
+  },[ready,open])
+
   // Render the button once pubToken is available
-  if (!linkToken) {
-    return <div>Loading...</div>; // Show a loading state while the token is being fetched
-  }
+  // if (!linkToken) {
+  //   return <div>Loading...</div>; // Show a loading state while the token is being fetched
+  // }
 
   return (
     <div>
-      <button onClick={() => open()} disabled={!ready}>
-        Link account
+      <button onClick={createLinkTokenV2} disabled={!user}>
+        {`${signInStatus}`}
       </button>
-      <button onClick={() => getBalances()} disabled={!ready}>
+      <button onClick={() => getBalances()}>
         Get Balances
       </button>
-      <button onClick={() => firebaseLogin()} disabled={!ready}>
+      <button onClick={() => firebaseLogin()}>
         Sign In
       </button>
     </div>
