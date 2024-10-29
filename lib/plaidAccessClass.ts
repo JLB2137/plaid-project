@@ -67,7 +67,6 @@ export class PlaidAccess{
         const accessTokenResponse = await accessTokenCall.json()
         let accessToken = accessTokenResponse.access_token
         accessToken = encrypt(accessToken,this.encryption_key,this.ivHex)
-        console.log('ivHEX','\n',this.ivHex)
         
 
         //need to exchange the public token for the access token
