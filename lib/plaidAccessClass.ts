@@ -1,5 +1,5 @@
 import clientPromise from '../lib/mongodb'
-import { encrypt } from './encryption';
+import { encrypt, decrypt } from './encryption';
 import crypto from 'crypto'
 export class PlaidAccess{
 
@@ -7,20 +7,20 @@ export class PlaidAccess{
     client_id!: string;
     env_url!: string;
     client_user_id!:string
-    encryption_key!: Buffer
+    encryption_key!: string
     ivHex!: string
 
-    constructor(secret:string, client_id:string, env_url:string, client_user_id:string, encryption_key:Buffer){
+    constructor(secret:string, client_id:string, env_url:string, client_user_id:string, encryption_key:string, iv_hex:string){
         this.secret = secret
         this.client_id = client_id
         this.env_url= env_url
         this.encryption_key = encryption_key
-        this.ivHex = crypto.randomBytes(16).toString('hex');
+        this.ivHex = iv_hex
         this.client_user_id = client_user_id
 
     }
 
-    async createLinkToken (products:string) {
+    async createLinkToken (products:[string]) {
 
         const body = {
             "client_id": this.client_id,
@@ -67,6 +67,7 @@ export class PlaidAccess{
         const accessTokenResponse = await accessTokenCall.json()
         let accessToken = accessTokenResponse.access_token
         accessToken = encrypt(accessToken,this.encryption_key,this.ivHex)
+        console.log('ivHEX','\n',this.ivHex)
         
 
         //need to exchange the public token for the access token
@@ -76,27 +77,35 @@ export class PlaidAccess{
         const client = await clientPromise
         const db = client.db(client_db)
         //need to call the encrypt to get the encrypted user id
-        const userSearchFilter = {user_id: this.client_user_id}
-        const user = await db.collection(client_collection!).findOne(userSearchFilter)
-
-        if(user){
-            const accessTokenList = user.access_tokens
-            accessTokenList.push(accessToken)
-            const updatedAccessTokenList = {
-                //need to create the access token above from the exchange w public
-                $set: { access_tokens: accessTokenList }
+        //const user = await db.collection(client_collection!).findOne(userSearchFilter)
+        const users = await db.collection(client_collection!).find().toArray()
+        let user = null
+        for(let i=0;i<users.length;i++){
+            console.log('decrypt',decrypt(users[i].user_id,this.encryption_key,this.ivHex))
+            if(decrypt(users[i].user_id,this.encryption_key,this.ivHex) == this.client_user_id){
+                user = users[i]
+                const userSearchFilter = {user_id: users[i].user_id}
+                let accessTokenList = users[i].access_tokens
+                accessTokenList.push(accessToken)
+                const updatedAccessTokenList = {
+                    //need to create the access token above from the exchange w public
+                    $set: { access_tokens: accessTokenList }
+                }
+                await db.collection(client_collection).updateOne(userSearchFilter,updatedAccessTokenList)
+                   
             }
-            await db.collection(client_collection).updateOne(userSearchFilter,updatedAccessTokenList)
+        }
+        console.log(users)
 
-        }else{
+        if(!user){
             //creates the document for the new user
-            const userConfig = {
-                user_id: this.client_user_id,
+            const newUser = {
+                user_id: encrypt(this.client_user_id,this.encryption_key,this.ivHex),
                 access_tokens: [accessToken]
                 
 
             }
-            await db.collection(client_collection).insertOne(userConfig)
+            await db.collection(client_collection).insertOne(newUser)
         }
         
 

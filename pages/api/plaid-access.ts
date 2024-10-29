@@ -12,8 +12,8 @@ const env_url = process.env.PLAID_ENV_URL!
 //NEED to replace this user ID with one that is encrypted from google prof
 const client_collection = process.env.CLIENT_COLLECTION!
 const client_db = process.env.CLIENT_DB!
-let key = process.env.ENCRYPTION_KEY!
-const encryption_key = Buffer.from(key, 'hex');
+const encryption_key = process.env.ENCRYPTION_KEY!
+const iv_hex = process.env.IV_HEX
 
 
 // pages/api/user/[id].js
@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('reqbopd',req.body)
     const client_user_id:string = req.body.jlbInvestmentsId.uid
     console.log('user',client_user_id)
-    const plaidAccess = new PlaidAccess(secret,client_id,env_url,client_user_id,encryption_key)
+    const plaidAccess = new PlaidAccess(secret,client_id,env_url,client_user_id,encryption_key,iv_hex)
 
     if (methodChoice == 'createLinkToken') {
         const products = req.body.products
@@ -33,10 +33,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 message: 'Link Token called successfully',
                 linkToken: linkToken
             })
-        }catch(err){
+        }catch(error){
+            console.log('error',error)
             res.status(500).json({
                 message: 'Error creating Link Token',
-                err: err
+                err: error
             })
         }
 
