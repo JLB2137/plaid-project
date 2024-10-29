@@ -2,9 +2,6 @@ import {
     Db
 } from 'mongodb'
 import {
-    UserData
-} from '../pages/types/types'
-import {
     encrypt,
     decrypt
 } from './encryption'
