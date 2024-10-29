@@ -1,45 +1,57 @@
-import clientPromise from '../lib/mongodb'
-import {UserData} from '../pages/types/types'
-export class PlaidAccess{
+import {
+    Db
+} from 'mongodb'
+import {
+    UserData
+} from '../pages/types/types'
+import {
+    encrypt,
+    decrypt
+} from './encryption'
+import {
+    User
+} from 'firebase/auth'
+export class MongoDBClass {
 
-    client_collection!:string
-    userSearchFilter!: {string:string}
+    db!: Db
     client_user_id!: string
+    encryption_key!: string
+    ivHex!: string
 
-    constructor(db: string, client_user_id:string, access_token?: string,client_collection: string,){
-        this.client_collection = client_collection
+    constructor(db: Db, client_user_id: string, encryption_key: string, ivHex: string) {
         this.db = db
-        this.accessToken = access_token
+        this.client_user_id = client_user_id
+        this.encryption_key = encryption_key
+        this.ivHex = ivHex
 
     }
 
-    async createLinkToken (products:string) {
-        const client = await clientPromise
-        const db = client.db(client_db)
-        //need to call the encrypt to get the encrypted user id
-        const userSearchFilter = {user_id: this.client_user_id}
-        const user = await db.collection(client_collection!).findOne(userSearchFilter)
-
-        if(user){
-            const accessTokenList = user.access_tokens
-            accessTokenList.push(accessToken)
-            const updatedAccessTokenList = {
-                //need to create the access token above from the exchange w public
-                $set: { access_tokens: accessTokenList }
+    async userCheck(client_collection: string) {
+        const users = await this.db.collection(client_collection!).find().toArray()
+        let encryptedUserID: string | null = null
+        for (let i = 0; i < users.length; i++) {
+            //console.log('decrypt',decrypt(users[i].user_id,this.encryption_key,this.ivHex))
+            if (decrypt(users[i].user_id, this.encryption_key, this.ivHex) == this.client_user_id) {
+                encryptedUserID = users[i].user_id as string
+                break
             }
-            const result = await db.collection(client_collection).updateOne(userSearchFilter,updatedAccessTokenList)
-
-        }else{
-            //creates the document for the new user
-            const userConfig = {
-                user_id: this.client_user_id,
-                access_tokens: [accessToken]
-                
-
-            }
-            const result = await db.collection(client_collection).insertOne(userConfig)
         }
-        
+
+        if (!encryptedUserID) {
+            encryptedUserID = encrypt(this.client_user_id, this.encryption_key, this.ivHex)
+
+            return {
+                encryptedUserID,
+                newUser: true
+            }
+        }
+
+        return {
+            encryptedUserID,
+            newUser: false
+        }
+
+
 
     }
 

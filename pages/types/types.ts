@@ -1,6 +1,12 @@
-import { NextApiRequest } from "next";
+import { ObjectId } from "mongodb";
 
 export interface UserData {
-    user_id: string
-    access_tokens: [string]
+    _id: ObjectId;
+    user_id: string;
+    access_tokens: string[];
+}
+
+export interface UserCheck {
+    encryptedUserID: string;
+    newUser: boolean;
 }

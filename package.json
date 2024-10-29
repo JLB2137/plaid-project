@@ -10,7 +10,6 @@
   "dependencies": {
     "@types/firebase": "^2.4.32",
     "@types/plaid-link": "^2.0.15",
-    "eslint-config-prettier": "^9.1.0",
     "firebase": "^11.0.0",
     "firebase-admin": "^12.6.0",
     "mongodb": "^6.9.0",
@@ -25,8 +24,13 @@
   "devDependencies": {
     "@types/node": "^22.7.7",
     "@types/react": "^18.3.11",
-    "eslint": "^8.35.0",
+    "@typescript-eslint/eslint-plugin": "^8.12.2",
+    "@typescript-eslint/parser": "^8.12.2",
+    "eslint": "^9.13.0",
     "eslint-config-next": "latest",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-react": "^7.37.2",
     "prettier": "3.3.3",
     "typescript": "^5.6.3"
   }
