@@ -143,6 +143,30 @@ const Link = () => {
     
   };
 
+  const getBalances = async ()=> {
+
+    try {
+      const getBalanceCall = await fetch('/api/plaid-account-data',{
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+        body: JSON.stringify({
+          jlbInvestmentsId: user
+        })
+      })
+
+      const response = await getBalanceCall.json()
+
+      
+      console.log('returned accounts',response)
+
+    } catch (error) {
+      console.error("Error exchanging public token:", error);
+    }
+    
+  }
+
   
 
   const { open, ready, exit } = usePlaidLink(config);

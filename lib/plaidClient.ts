@@ -1,7 +1,7 @@
 import { Db } from 'mongodb';
 import { encrypt } from './encryption';
 import { UserCheck } from '../pages/types/types';
-export class PlaidAccess{
+export class PlaidClient{
 
     secret!: string;
     client_id!: string;
@@ -9,18 +9,16 @@ export class PlaidAccess{
     userCheck!: UserCheck
     encryption_key!: string
     ivHex!: string
-    newUser!: boolean
     client_user_id!: string
     
 
-    constructor(secret:string, client_id:string, env_url:string, userCheck: UserCheck, encryption_key:string, iv_hex:string){
+    constructor(secret:string, client_id:string, env_url:string, encryptedUserID: string, encryption_key:string, iv_hex:string){
         this.secret = secret
         this.client_id = client_id
         this.env_url= env_url
         this.encryption_key = encryption_key
         this.ivHex = iv_hex
-        this.newUser = userCheck.newUser
-        this.client_user_id = userCheck.encryptedUserID
+        this.client_user_id = encryptedUserID
 
     }
 
@@ -51,7 +49,7 @@ export class PlaidAccess{
         return linkTokenObj
     }
 
-    async getAccessToken(public_token:string, db:Db, client_collection:string) {
+    async getAccessToken(public_token:string, db:Db, client_collection:string, newUser: boolean) {
         
         const body = {
             "client_id": `${this.client_id}`,
@@ -72,7 +70,7 @@ export class PlaidAccess{
         accessToken = encrypt(accessToken,this.encryption_key,this.ivHex)
         
 
-        if(this.newUser){
+        if(newUser){
             //creates the document for the new user
             const userConfig = {
                 user_id: this.client_user_id,
@@ -96,23 +94,35 @@ export class PlaidAccess{
 
     }
 
-    async getBalance (access_token:string) {
 
-        const body = {
-            "client_id": this.client_id,
-            "secret": this.secret,
-            "access_token": access_token
+    //access tokens need to be decrypted
+    async getBalance (access_tokens:string[]) {
+
+        let account
+        let accounts = []
+
+        for(let i=0;i<access_tokens.length;i++){
+            
+            const body = {
+                "client_id": this.client_id,
+                "secret": this.secret,
+                "access_token": access_tokens[i]
+            }
+    
+            const balance = await fetch(`${this.env_url}/accounts/balance/get`,
+                {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(body)
+                }
+            )
+
+        
+
+            account = await balance.json()
+            accounts.push(account)
         }
 
-        const balance = await fetch(`${this.env_url}/accounts/balance/get`,
-            {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(body)
-            }
-        )
-
-        const accounts = balance.json()
 
         return accounts
     }
