@@ -1,6 +1,5 @@
 import {NextApiRequest,NextApiResponse} from "next";
 import {PlaidAccess} from "../../lib/plaidAccessClass"
-import {encrypt, decrypt} from "../../lib/encryption"
 import clientPromise from '../../lib/mongodb'
 import crypto from 'crypto'
 import { MongoDBClass } from "../../lib/mongoDBClass";
@@ -26,11 +25,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const methodChoice = req.body.methodChoice
     let client_user_id:string = req.body.jlbInvestmentsId.uid
+
+    //create dbConnection
     const dbAccess = new MongoDBClass(db,client_user_id,encryption_key,iv_hex)
 
     //update userID to encrypted version
     const userCheck = await dbAccess.userCheck(client_collection)
     const plaidAccess = new PlaidAccess(secret,client_id,env_url,userCheck,encryption_key,iv_hex)
+
+    //encrypted userID = userCheck.encryptedUserID
+
 
     if (methodChoice == 'createLinkToken') {
         const products = req.body.products
@@ -66,6 +70,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             })
         }
 
+    }else if(methodChoice == 'getBalance'){
+        
     }
 
 

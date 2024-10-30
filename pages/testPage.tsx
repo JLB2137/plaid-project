@@ -124,7 +124,7 @@ const Link = () => {
         method: 'POST',
         body: JSON.stringify({
           methodChoice: 'createLinkToken',
-          products: ["assets","transactions"],
+          products: ["assets","transactions","investments","liabilities"],
           jlbInvestmentsId: user
         })
       })

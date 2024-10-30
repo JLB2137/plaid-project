@@ -96,4 +96,25 @@ export class PlaidAccess{
 
     }
 
+    async getBalance (access_token:string) {
+
+        const body = {
+            "client_id": this.client_id,
+            "secret": this.secret,
+            "access_token": access_token
+        }
+
+        const balance = await fetch(`${this.env_url}/accounts/balance/get`,
+            {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(body)
+            }
+        )
+
+        const accounts = balance.json()
+
+        return accounts
+    }
+
 }
