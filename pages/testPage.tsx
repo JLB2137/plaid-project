@@ -234,16 +234,20 @@ const Link = () => {
       }
       return (
         <div>
+          <ul>
         {
           Object.entries(securities).map(([key, value]) => (
-            <div key={key}>
+            <li key={key}>
               <p>Asset Name: {value.name}</p>
               <p>Ticker: {value.ticker}</p>
-              <p>Market Value: {value.quantity! * value.closePrice!}</p>
-            </div>
+              <p>Price: ${value.closePrice}</p>
+              <p>Quantity Owned: {value.quantity}</p>
+              <p>Market Value: ${value.quantity! * value.closePrice!}</p>
+            </li>
   
           ))  
         }
+          </ul>
         </div>
       )
     }
