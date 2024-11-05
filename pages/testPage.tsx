@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
+import { Plaid } from "plaid-link";
 import { UserInfo } from '../node_modules/@firebase/auth-types'
 import { PlaidLinkOnSuccess } from "react-plaid-link";
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { InvestmentHoldingsResponse, InvestmentSecurity } from "./types/types";
 
 const Link = () => {
   const [linkToken, setLinkToken] = useState<string | null>(null);
   const [user,setUser] = useState<UserInfo | null>(null)
   const [signInStatus,setSignInStatus] = useState<string>('Please Sign in First')
   const [shouldPlaidOpen,setShouldPlaidOpen] = useState<boolean>(false)
+  const [investmentHoldings, setInvestmentHoldings] = useState<InvestmentHoldingsResponse | null>(null)
 
 
 
@@ -124,7 +127,7 @@ const Link = () => {
         method: 'POST',
         body: JSON.stringify({
           methodChoice: 'createLinkToken',
-          products: ["assets","transactions","investments","liabilities"],
+          products: ["auth","transactions","investments","liabilities"],
           jlbInvestmentsId: user
         })
       })
@@ -146,17 +149,18 @@ const Link = () => {
   const getBalances = async ()=> {
 
     try {
-      const getBalanceCall = await fetch('/api/plaid-account-data',{
+      const request = await fetch('/api/plaid-account-data',{
         headers: {
           'Content-Type': 'application/json',
         },
         method: 'POST',
         body: JSON.stringify({
-          jlbInvestmentsId: user
+          jlbInvestmentsId: user,
+          method: 'getBalance'
         })
       })
 
-      const response = await getBalanceCall.json()
+      const response = await request.json()
 
       
       console.log('returned accounts',response)
@@ -165,6 +169,86 @@ const Link = () => {
       console.error("Error exchanging public token:", error);
     }
     
+  }
+
+  const getInvestmentHoldings = async ()=> {
+
+    try {
+      const request = await fetch('/api/plaid-account-data',{
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+        body: JSON.stringify({
+          jlbInvestmentsId: user,
+          method: 'getInvestmentHoldings'
+        })
+      })
+
+      const response = await request.json()
+
+      //setup to display holdings
+
+      //the zero here needs to be adjusted for multiple account tokens where the tokens are greater than 1 account
+
+      setInvestmentHoldings(response.holdings[0])
+
+      
+      console.log('returned holdings',response)
+
+    } catch (error) {
+      console.error("Error exchanging public token:", error);
+    }
+    
+  }
+
+  const displayInvestmentHoldings = () => {
+
+
+  
+
+
+
+    if(!investmentHoldings){
+      return (
+        <div>
+          <p>Loading...</p>
+        </div>
+      )
+    }
+    else{
+      console.log(investmentHoldings)
+      const securities: { [x: string]: { name?: string; ticker?:string; closePrice?: number; costBasis?: number; quantity?: number}; } = {}
+
+      for(let i=0; i<investmentHoldings!.securities.length;i++){
+        securities[`${investmentHoldings!.securities[i].security_id}`] = {
+          name: investmentHoldings!.securities[i].name,
+          ticker: investmentHoldings!.securities[i].ticker_symbol!,
+          closePrice: investmentHoldings!.securities[i].close_price!
+  
+        }
+      }
+      for(let i=0; i<investmentHoldings!.holdings.length;i++){
+        securities[`${investmentHoldings!.holdings[i].security_id}`].costBasis = investmentHoldings!.holdings[i].cost_basis
+        securities[`${investmentHoldings!.holdings[i].security_id}`].quantity = investmentHoldings!.holdings[i].quantity
+      }
+      return (
+        <div>
+        {
+          Object.entries(securities).map(([key, value]) => (
+            <div key={key}>
+              <p>Asset Name: {value.name}</p>
+              <p>Ticker: {value.ticker}</p>
+              <p>Market Value: {value.quantity! * value.closePrice!}</p>
+            </div>
+  
+          ))  
+        }
+        </div>
+      )
+    }
+
+
   }
 
   
@@ -191,9 +275,13 @@ const Link = () => {
       <button onClick={() => getBalances()}>
         Get Balances
       </button>
+      <button onClick={() => getInvestmentHoldings()}>
+        Get Investment Holdings
+      </button>
       <button onClick={() => firebaseLogin()}>
         Sign In
       </button>
+      {displayInvestmentHoldings()}
     </div>
   );
 };

@@ -33,7 +33,8 @@ export class PlaidClient{
             "user": {
                 "client_user_id": this.client_user_id, 
             },
-            "products": products
+            "products": ["assets"],
+            "required_if_supported_products": products
         }
 
         const linkTokenCall = await fetch(`${this.env_url}/link/token/create`,
@@ -126,5 +127,37 @@ export class PlaidClient{
 
         return accounts
     }
+
+
+    async getInvestmentHoldings (access_tokens:string[]) {
+
+        let holdings = []
+
+
+        for(let i=0;i<access_tokens.length;i++){
+            
+            const body = {
+                "client_id": this.client_id,
+                "secret": this.secret,
+                "access_token": access_tokens[i]
+            }
+    
+            const getHoldings = await fetch(`${this.env_url}/investments/holdings/get`,
+                {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(body)
+                }
+            )
+
+        
+            let holdingData = await getHoldings.json()
+            holdings.push(holdingData)
+        }
+
+
+        return holdings
+    }
+
 
 }

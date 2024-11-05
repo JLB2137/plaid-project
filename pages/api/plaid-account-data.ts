@@ -23,6 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const db = client.db(client_db)
 
     let client_user_id:string = req.body.jlbInvestmentsId.uid
+    const method: string = req.body.method
 
     //create db class access
     const dbAccess = new MongoDBClass(db,client_user_id,encryption_key,iv_hex)
@@ -32,21 +33,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const plaidAccess = new PlaidClient(secret,client_id,env_url,client_user_id,encryption_key,iv_hex)
 
     //encrypted userID = userCheck.encryptedUserID
-
-    try{
-        const access_tokens = await dbAccess.getUserTokens(client_collection,client_user_id) //returns an array of decrypted tokens
-        const accounts = await plaidAccess.getBalance(access_tokens) //returns balance info for each token
-        res.status(200).json({
-            message: 'Link Token called successfully',
-            accounts: accounts
-        })
-    }catch(error){
-        console.log('error',error)
-        res.status(500).json({
-            message: 'Error creating Link Token',
-            err: error
-        })
+    if(method == 'getBalance'){
+        try{
+            const access_tokens = await dbAccess.getUserTokens(client_collection,client_user_id) //returns an array of decrypted tokens
+            const accounts = await plaidAccess.getBalance(access_tokens) //returns balance info for each token
+            res.status(200).json({
+                message: 'Balances called successfully',
+                accounts: accounts
+            })
+        }catch(error){
+            console.log('error',error)
+            res.status(500).json({
+                message: 'Error getting account balances',
+                err: error
+            })
+        }
+    }else if(method == 'getInvestmentHoldings'){
+        try{
+            const access_tokens = await dbAccess.getUserTokens(client_collection,client_user_id) //returns an array of decrypted tokens
+            const holdings = await plaidAccess.getInvestmentHoldings(access_tokens) //returns balance info for each token
+            res.status(200).json({
+                message: 'Holdings called successfully',
+                holdings: holdings
+            })
+        }catch(error){
+            console.log('error',error)
+            res.status(500).json({
+                message: 'Error getting holdings',
+                err: error
+            })
+        }
     }
+
 
 
 
