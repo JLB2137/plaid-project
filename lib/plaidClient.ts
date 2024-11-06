@@ -50,7 +50,9 @@ export class PlaidClient{
         return linkTokenObj
     }
 
-    async getAccessToken(public_token:string, db:Db, client_collection:string, newUser: boolean) {
+    //adjust the access token save to also save the metadata for each account
+    //account_collection?:string,
+    async getAccessToken(public_token:string, db:Db, client_collection:string,  newUser: boolean) {
         
         const body = {
             "client_id": `${this.client_id}`,
@@ -68,16 +70,40 @@ export class PlaidClient{
 
         const accessTokenResponse = await accessTokenCall.json()
         let accessToken = accessTokenResponse.access_token
-        accessToken = encrypt(accessToken,this.encryption_key,this.ivHex)
+        accessToken = encrypt(accessToken,this.encryption_key,this.ivHex)   
+
+        let accounts = []
+        //iterate through the token accounts
+        for(let i=0;i<metadata.accounts.length;i++){
+            accounts.push({
+                id: encrypt(metadata.accounts[i].id,this.encryption_key,this.ivHex),
+                name: encrypt(metadata.accounts[i].name,this.encryption_key,this.ivHex),
+                mask: metadata.accounts[i].mask,
+                type: metadata.accounts[i].type,
+                subtype: metadata.accounts[i].subtype,
+                verification_status: metadata.accounts[i].name
+            })
+        }
+
+        //encryptions
         
 
         if(newUser){
+            const accountInformation = {
+                institutionName: metadata.institution.name,
+                institution_id: metadata.institution.institution_id,
+                accounts: accounts
+            }
             //creates the document for the new user
             const userConfig = {
                 user_id: this.client_user_id,
                 access_tokens: [accessToken]
                 
 
+            }
+            const accountConfig ={
+                user_id: this.client_user_id,
+                accessToken: 
             }
             await db.collection(client_collection).insertOne(userConfig)
         }else{
@@ -93,6 +119,30 @@ export class PlaidClient{
         }
         
 
+    }
+
+    async deletedAccount(db:Db, client_collection:string, newUser: boolean, access_token: string) {
+        
+        const body = {
+            "client_id": `${this.client_id}`,
+            "secret": `${this.secret}`,
+            "access_token": `${access_token}`
+        }
+
+        //remove it from the user DB setup
+        
+        const request = await fetch(`${this.env_url}/item/remove`,
+            {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(body)
+            }
+        )
+
+        const deletion = await request.json()
+
+        return deletion
+        
     }
 
 

@@ -32,6 +32,7 @@ const Link = () => {
         body: JSON.stringify({
           methodChoice: 'getAccessToken',
           public_token: public_token,
+          metadata: metadata,
           jlbInvestmentsId: user
 
         })
