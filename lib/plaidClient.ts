@@ -87,12 +87,12 @@ export class PlaidClient{
             })
         }
 
-        //needs to be grabbed from accutal institution
+
         const accounts = {
             access_token: accessToken,  
             institution: {
-                name: 'Wells Fargo',
-                institution_id: 'ins_4'
+                name: metadata.institution?.name,
+                institution_id: metadata.institution?.institution_id
             },
             accounts: institutionAccounts
         }
@@ -125,11 +125,14 @@ export class PlaidClient{
                 }
                 await db.collection(client_collection).updateOne(userSearchFilter,updatedAccessTokenList)
             
-            const userAccounts = await db.collection(account_collection).findOne(userSearchFilter)
-            let accounts = userAccounts!.accounts
-            accounts.push(accounts)
+            const userAccountsDocument = await db.collection(account_collection).findOne(userSearchFilter)
+            console.log('documents',userAccountsDocument)
+            let userAccounts = userAccountsDocument!.accounts
+            console.log('accounts',userAccounts)
+            console.log('accounted',accounts)
+            userAccounts.push(accounts)
             const updatedAccountList = {
-                $set: { accounts: accounts }
+                $set: { accounts: userAccounts }
             }
             await db.collection(account_collection).updateOne(userSearchFilter,updatedAccountList)
              

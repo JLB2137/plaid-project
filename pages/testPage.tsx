@@ -4,8 +4,9 @@ import { Plaid } from "plaid-link";
 import { UserInfo } from '../node_modules/@firebase/auth-types'
 import { PlaidLinkOnSuccess } from "react-plaid-link";
 import { initializeApp, getApps } from "firebase/app";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, signInWithPopup, signOut ,GoogleAuthProvider, browserLocalPersistence, setPersistence, onAuthStateChanged} from "firebase/auth";
 import { InvestmentHoldingsResponse, InvestmentSecurity } from "./types/types";
+import { auth } from "firebase-admin";
 
 const Link = () => {
   const [linkToken, setLinkToken] = useState<string | null>(null);
@@ -13,7 +14,26 @@ const Link = () => {
   const [signInStatus,setSignInStatus] = useState<string>('Please Sign in First')
   const [shouldPlaidOpen,setShouldPlaidOpen] = useState<boolean>(false)
   const [investmentHoldings, setInvestmentHoldings] = useState<InvestmentHoldingsResponse | null>(null)
-
+  
+  const firebaseConfig = {
+    apiKey: 'AIzaSyCYYK43AFwmfljp0JeA3PajLePFv_tSYzU',
+    authDomain: "jlb-investments.firebaseapp.com",
+    projectId: "jlb-investments",
+    storageBucket: "jlb-investments.appspot.com",
+    messagingSenderId: "250755462166",
+    appId: "1:250755462166:web:e60614c2b96091b828b137",
+    measurementId: "G-SFR76BCE7B"
+  };
+  let app
+  //check if app has already been initialized
+  if(!getApps().length){
+    app = initializeApp(firebaseConfig);
+  }else{
+    app = getApps()[0]
+  }
+  const provider = new GoogleAuthProvider();
+  const auth = getAuth()
+  setPersistence(auth,browserLocalPersistence)
 
 
 
@@ -64,29 +84,7 @@ const Link = () => {
   }
 
   const firebaseLogin = async () => {
-    
 
-    const firebaseConfig = {
-      apiKey: 'AIzaSyCYYK43AFwmfljp0JeA3PajLePFv_tSYzU',
-      authDomain: "jlb-investments.firebaseapp.com",
-      projectId: "jlb-investments",
-      storageBucket: "jlb-investments.appspot.com",
-      messagingSenderId: "250755462166",
-      appId: "1:250755462166:web:e60614c2b96091b828b137",
-      measurementId: "G-SFR76BCE7B"
-    };
-
-    let app
-    //check if app has already been initialized
-    if(!getApps().length){
-      app = await initializeApp(firebaseConfig);
-    }else{
-      app = getApps()[0]
-    }
-
-  //initialize auth
-    const provider = new GoogleAuthProvider();
-    const auth = getAuth()
     signInWithPopup(auth, provider)
       .then((result) => {
         // This gives you a Google Access Token. You can use it to access the Google API.
@@ -114,6 +112,12 @@ const Link = () => {
 
 
 
+  }
+
+  const firebaseLogout = () => {
+    signOut(auth)
+    setUser(null)
+    setSignInStatus('Please Sign in First')
   }
 
 
@@ -260,6 +264,17 @@ const Link = () => {
 
   const { open, ready, exit } = usePlaidLink(config);
 
+  useEffect(()=> {
+    onAuthStateChanged(auth,(user) => {
+      if(user){
+        setUser(user)
+        setSignInStatus('Link Accounts')
+      }else{
+        //user not signed in
+      }
+    })
+  })
+  
   useEffect(()=>{
     if(ready){
       open()
@@ -283,8 +298,11 @@ const Link = () => {
       <button onClick={() => getInvestmentHoldings()}>
         Get Investment Holdings
       </button>
-      <button onClick={() => firebaseLogin()}>
+      <button onClick={() => firebaseLogin()} disabled={user !== null}>
         Sign In
+      </button>
+      <button onClick={() => firebaseLogout()} disabled={!user}>
+        Sign Out
       </button>
       {displayInvestmentHoldings()}
     </div>
