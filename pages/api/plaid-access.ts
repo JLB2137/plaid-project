@@ -11,6 +11,7 @@ const secret = process.env.PLAID_SANDBOX_SECRET!
 const env_url = process.env.PLAID_ENV_URL!
 //NEED to replace this user ID with one that is encrypted from google prof
 const client_collection = process.env.CLIENT_COLLECTION!
+const account_collection = process.env.ACCOUNT_COLLECTION!
 const client_db = process.env.CLIENT_DB!
 const encryption_key = process.env.ENCRYPTION_KEY!
 const iv_hex = process.env.IV_HEX!
@@ -25,6 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const methodChoice = req.body.methodChoice
     let client_user_id:string = req.body.jlbInvestmentsId.uid
+    const metadata = req.body.metadata
 
     //create db Class access
     const dbAccess = new MongoDBClass(db,client_user_id,encryption_key,iv_hex)
@@ -56,7 +58,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const public_token = req.body.public_token
         try {
 
-            const createdAccessToken = await plaidAccess.getAccessToken(public_token, db, client_collection,userCheck.newUser)
+            const createdAccessToken = await plaidAccess.getAccessToken(public_token, db, client_collection,account_collection, metadata, userCheck.newUser)
             //const result = await accessTokenSaved   
             //console.log('returned info in plaid-access for access token',result)
             res.status(200).json({

@@ -1,5 +1,6 @@
 import {Db} from 'mongodb'
 import {encrypt,decrypt} from './encryption'
+import { AccountInformationSchema } from '../pages/types/types'
 export class MongoDBClass {
 
     db!: Db
@@ -70,6 +71,32 @@ export class MongoDBClass {
         }
 
         return decryptedTokens
+        
+    }
+
+    async getInvestmentAccounts(account_collection: string, encryptedUserID: string){
+        const userSearchFilter = {user_id: encryptedUserID}
+        const userAccounts = await this.db.collection(account_collection!).findOne(userSearchFilter)
+        let investmentAccounts = [] 
+        console.log('acc',userAccounts)
+
+        for(let i=0;i<userAccounts!.accounts.length;i++){
+            console.log('here',userAccounts!.accounts[i])
+            let institutionAccounts = []
+            for(let j=0;j<userAccounts!.accounts[i].accounts.length;j++){
+                if(userAccounts!.accounts[i].accounts[j].type == "investment"){
+                    console.log('returned accounts',userAccounts!.accounts[i].accounts[j])
+                    institutionAccounts.push(decrypt(userAccounts!.accounts[i].accounts[j].id, this.encryption_key, this.ivHex))
+                }           
+            }
+            investmentAccounts.push({
+                access_token: decrypt(userAccounts!.accounts[i].access_token,this.encryption_key, this.ivHex),
+                account_ids: institutionAccounts
+            })     
+
+        }
+
+        return investmentAccounts
         
     }
 

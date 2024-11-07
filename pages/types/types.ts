@@ -63,4 +63,23 @@ export type InvestmentAccount = {
     holdings: InvestmentHolding[];
     securities: InvestmentSecurity[];
   };
+
+  export type UserAccounts = {
+      id: string
+      name: string
+      mask: string
+      type: string
+      subtype: string
+      verification_status: string
+  }
+
+  export type AccountInformationSchema = {
+    user_id: string;
+    accounts: UserAccounts[]
+  }
+
+  export type InvestmentAccounts = {
+      access_token: string
+      account_ids: string[]
+  }
   

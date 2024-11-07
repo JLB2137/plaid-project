@@ -1,6 +1,8 @@
 import { Db } from 'mongodb';
 import { encrypt } from './encryption';
-import { UserCheck } from '../pages/types/types';
+import { InvestmentAccounts, UserCheck } from '../pages/types/types';
+import { PlaidLinkOnSuccessMetadata } from 'react-plaid-link';
+
 export class PlaidClient{
 
     secret!: string;
@@ -52,7 +54,7 @@ export class PlaidClient{
 
     //adjust the access token save to also save the metadata for each account
     //account_collection?:string,
-    async getAccessToken(public_token:string, db:Db, client_collection:string,  newUser: boolean) {
+    async getAccessToken(public_token:string, db:Db, client_collection:string, account_collection:string, metadata:PlaidLinkOnSuccessMetadata, newUser: boolean) {
         
         const body = {
             "client_id": `${this.client_id}`,
@@ -72,10 +74,10 @@ export class PlaidClient{
         let accessToken = accessTokenResponse.access_token
         accessToken = encrypt(accessToken,this.encryption_key,this.ivHex)   
 
-        let accounts = []
-        //iterate through the token accounts
+        //encryption for account IDs and names
+        let institutionAccounts = []
         for(let i=0;i<metadata.accounts.length;i++){
-            accounts.push({
+            institutionAccounts.push({
                 id: encrypt(metadata.accounts[i].id,this.encryption_key,this.ivHex),
                 name: encrypt(metadata.accounts[i].name,this.encryption_key,this.ivHex),
                 mask: metadata.accounts[i].mask,
@@ -85,15 +87,19 @@ export class PlaidClient{
             })
         }
 
+        //needs to be grabbed from accutal institution
+        const accounts = {
+            access_token: accessToken,  
+            institution: {
+                name: 'Wells Fargo',
+                institution_id: 'ins_4'
+            },
+            accounts: institutionAccounts
+        }
         //encryptions
         
 
         if(newUser){
-            const accountInformation = {
-                institutionName: metadata.institution.name,
-                institution_id: metadata.institution.institution_id,
-                accounts: accounts
-            }
             //creates the document for the new user
             const userConfig = {
                 user_id: this.client_user_id,
@@ -103,12 +109,14 @@ export class PlaidClient{
             }
             const accountConfig ={
                 user_id: this.client_user_id,
-                accessToken: 
+                accounts: [accounts]
             }
             await db.collection(client_collection).insertOne(userConfig)
+            await db.collection(account_collection).insertOne(accountConfig)
         }else{
             const userSearchFilter = {user_id: this.client_user_id}
             const foundUser = await db.collection(client_collection).findOne(userSearchFilter)
+
             let accessTokenList = foundUser!.access_tokens
                 accessTokenList.push(accessToken)
                 const updatedAccessTokenList = {
@@ -116,6 +124,15 @@ export class PlaidClient{
                     $set: { access_tokens: accessTokenList }
                 }
                 await db.collection(client_collection).updateOne(userSearchFilter,updatedAccessTokenList)
+            
+            const userAccounts = await db.collection(account_collection).findOne(userSearchFilter)
+            let accounts = userAccounts!.accounts
+            accounts.push(accounts)
+            const updatedAccountList = {
+                $set: { accounts: accounts }
+            }
+            await db.collection(account_collection).updateOne(userSearchFilter,updatedAccountList)
+             
         }
         
 
@@ -179,17 +196,20 @@ export class PlaidClient{
     }
 
 
-    async getInvestmentHoldings (access_tokens:string[]) {
-
+    async getInvestmentHoldings (accounts: InvestmentAccounts[]) {
+        //need to parse output from DB for account token and subsequent account IDs
         let holdings = []
 
 
-        for(let i=0;i<access_tokens.length;i++){
+        for(let i=0;i<accounts.length;i++){
             
             const body = {
                 "client_id": this.client_id,
                 "secret": this.secret,
-                "access_token": access_tokens[i]
+                "access_token": accounts[i].access_token,
+                "options": {
+                    "account_ids": accounts[i].account_ids
+                }
             }
     
             const getHoldings = await fetch(`${this.env_url}/investments/holdings/get`,

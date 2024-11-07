@@ -10,6 +10,7 @@ const secret = process.env.PLAID_SANDBOX_SECRET!
 const env_url = process.env.PLAID_ENV_URL!
 //NEED to replace this user ID with one that is encrypted from google prof
 const client_collection = process.env.CLIENT_COLLECTION!
+const account_collection = process.env.ACCOUNT_COLLECTION!
 const client_db = process.env.CLIENT_DB!
 const encryption_key = process.env.ENCRYPTION_KEY!
 const iv_hex = process.env.IV_HEX!
@@ -50,8 +51,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
     }else if(method == 'getInvestmentHoldings'){
         try{
-            const access_tokens = await dbAccess.getUserTokens(client_collection,client_user_id) //returns an array of decrypted tokens
-            const holdings = await plaidAccess.getInvestmentHoldings(access_tokens) //returns balance info for each token
+
+            const accounts = await dbAccess.getInvestmentAccounts(account_collection,client_user_id) //returns an array of decrypted tokens
+            console.log('accounts',accounts)
+            const holdings = await plaidAccess.getInvestmentHoldings(accounts) //investments for the token
             res.status(200).json({
                 message: 'Holdings called successfully',
                 holdings: holdings
