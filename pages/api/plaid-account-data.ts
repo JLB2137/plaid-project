@@ -53,7 +53,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         try{
 
             const accounts = await dbAccess.getInvestmentAccounts(account_collection,client_user_id) //returns an array of decrypted tokens
-            console.log('accounts',accounts)
+            console.log('accounts in api',accounts)
             const holdings = await plaidAccess.getInvestmentHoldings(accounts) //investments for the token
             res.status(200).json({
                 message: 'Holdings called successfully',

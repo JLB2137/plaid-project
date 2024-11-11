@@ -223,10 +223,13 @@ export class PlaidClient{
                 }
             )
 
-        
+            
             let holdingData = await getHoldings.json()
+            
             holdings.push(holdingData)
         }
+
+        console.log('holdings',holdings)
 
 
         return holdings

@@ -100,4 +100,44 @@ export class MongoDBClass {
         
     }
 
+    async deleteAccount(client_collection:string, account_collection: string, access_token:string, encryptedUserID: string){
+        const userSearchFilter = {user_id: encryptedUserID}
+        let userAccount = await this.db.collection(account_collection!).findOne(userSearchFilter)
+        console.log('acc',userAccount)
+        let accounts = userAccount!.accounts
+   
+
+        for(let i=0;i<userAccount!.accounts.length;i++){
+            if (userAccount!.accounts[i].access_token == access_token){
+                accounts.splice(i,1)
+                const updatedAccountList = {
+                    //need to create the access token above from the exchange w public
+                    $set: { accounts: accounts }
+                }
+                await this.db.collection(client_collection).updateOne(userSearchFilter,updatedAccountList)
+        
+            }
+             
+
+        }
+
+        userAccount = await this.db.collection(client_collection!).findOne(userSearchFilter)
+        let accessTokenList = userAccount!.access_tokens
+
+        for(let i =0;i<accessTokenList.length;i++){
+            if(accessTokenList[i] == access_token){
+                accessTokenList.splice(i,1)
+            }
+        }
+        const updatedAccessTokenList = {
+            //need to create the access token above from the exchange w public
+            $set: { access_tokens: accessTokenList }
+        }
+        await this.db.collection(client_collection).updateOne(userSearchFilter,updatedAccessTokenList)
+ 
+
+        return 'Accounts DEleted'
+        
+    }
+
 }
