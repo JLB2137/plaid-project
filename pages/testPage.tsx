@@ -199,10 +199,39 @@ const Link = () => {
       setInvestmentHoldings(response.holdings[0])
 
       
-      console.log('returned holdings',response)
+      console.log('returned investment accounts',response)
 
     } catch (error) {
       console.error("Error exchanging public token:", error);
+    }
+    
+  }
+
+  const deleteAccount = async ()=> {
+    //the accountID to delete will need to be passed and no longer be static
+    try {
+      const request = await fetch('/api/plaid-account-data',{
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+        body: JSON.stringify({
+          jlbInvestmentsId: user,
+          method: 'deleteAccount',
+          accountID: 'MA79bJeb9gcLMeRG5eqQUnbyKEmdMafLRlxnq'
+        })
+      })
+
+      const response = await request.json()
+
+      //setup to display holdings
+
+      //the zero here needs to be adjusted for multiple account tokens where the tokens are greater than 1 account
+      
+      console.log('deleted account response',response)
+
+    } catch (error) {
+      console.error("error deleting account:", error);
     }
     
   }
@@ -297,6 +326,9 @@ const Link = () => {
       </button>
       <button onClick={() => getInvestmentHoldings()}>
         Get Investment Holdings
+      </button>
+      <button onClick={() => deleteAccount()}>
+        Delete Account
       </button>
       <button onClick={() => firebaseLogin()} disabled={user !== null}>
         Sign In

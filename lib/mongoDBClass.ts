@@ -60,6 +60,34 @@ export class MongoDBClass {
 
     }
 
+    async getEncryptedAccountIDToken(account_collection: string, encryptedUserID: string, account_id: string){
+        //returns the encrypted accountID and it's encrypted access token
+        console.log('account_id',account_id)
+        const userSearchFilter = {user_id: encryptedUserID}
+        let userAccount = await this.db.collection(account_collection!).findOne(userSearchFilter)
+        let encryptedAccountID: string | null = null
+        let encryptedAccessToken: string | null = null
+        for (let i = 0; i < userAccount!.accounts.length; i++) {
+            //console.log('here',userAccount!.accounts[i])
+            for(let j = 0;j<userAccount!.accounts[i].accounts.length;j++){
+                if (decrypt(userAccount!.accounts[i].accounts[j].id, this.encryption_key, this.ivHex) == account_id) {
+                    encryptedAccountID = userAccount!.accounts[i].accounts[j].id
+                    encryptedAccessToken = userAccount!.accounts[i].access_token
+                    return {
+                        encrypted_account_id: encryptedAccountID,
+                        encrypted_access_token: encryptedAccessToken
+                    }
+                }
+            }
+
+        }
+
+        return {
+            error: 'no account was found'
+        }
+
+    }
+
     async getUserTokens(client_collection: string, encryptedUserID: string){
         const userSearchFilter = {user_id: encryptedUserID}
         const user = await this.db.collection(client_collection!).findOne(userSearchFilter)
@@ -100,21 +128,21 @@ export class MongoDBClass {
         
     }
 
-    async deleteAccount(client_collection:string, account_collection: string, access_token:string, encryptedUserID: string){
-        const userSearchFilter = {user_id: encryptedUserID}
+    async deleteAccount(client_collection:string, account_collection: string, encrypted_access_token:string, encrypted_user_id: string){
+        const userSearchFilter = {user_id: encrypted_user_id}
         let userAccount = await this.db.collection(account_collection!).findOne(userSearchFilter)
         console.log('acc',userAccount)
         let accounts = userAccount!.accounts
    
-
-        for(let i=0;i<userAccount!.accounts.length;i++){
-            if (userAccount!.accounts[i].access_token == access_token){
+        
+        for(let i=0;i<accounts.length;i++){
+            if (accounts[i].access_token == encrypted_access_token){
                 accounts.splice(i,1)
                 const updatedAccountList = {
                     //need to create the access token above from the exchange w public
                     $set: { accounts: accounts }
                 }
-                await this.db.collection(client_collection).updateOne(userSearchFilter,updatedAccountList)
+                await this.db.collection(account_collection).updateOne(userSearchFilter,updatedAccountList)
         
             }
              
@@ -125,7 +153,7 @@ export class MongoDBClass {
         let accessTokenList = userAccount!.access_tokens
 
         for(let i =0;i<accessTokenList.length;i++){
-            if(accessTokenList[i] == access_token){
+            if(accessTokenList[i] == encrypted_access_token){
                 accessTokenList.splice(i,1)
             }
         }
@@ -136,7 +164,7 @@ export class MongoDBClass {
         await this.db.collection(client_collection).updateOne(userSearchFilter,updatedAccessTokenList)
  
 
-        return 'Accounts DEleted'
+        return 'Accounts Deleted'
         
     }
 

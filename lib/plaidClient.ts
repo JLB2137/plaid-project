@@ -1,5 +1,5 @@
 import { Db } from 'mongodb';
-import { encrypt } from './encryption';
+import { encrypt, decrypt } from './encryption';
 import { InvestmentAccounts, UserCheck } from '../pages/types/types';
 import { PlaidLinkOnSuccessMetadata } from 'react-plaid-link';
 
@@ -141,8 +141,9 @@ export class PlaidClient{
 
     }
 
-    async deletedAccount(db:Db, client_collection:string, newUser: boolean, access_token: string) {
+    async deleteAccount(encrypted_access_token: string) {
         
+        const access_token = decrypt(encrypted_access_token, this.encryption_key, this.ivHex)
         const body = {
             "client_id": `${this.client_id}`,
             "secret": `${this.secret}`,
