@@ -58,7 +58,7 @@ const Link = () => {
         })
       })
       setLinkToken(null)
-      console.log('acces',await accessTokenSave)
+      console.log('acces', accessTokenSave)
     } catch (error) {
       console.error("Error exchanging public token:", error);
     }

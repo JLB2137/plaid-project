@@ -226,8 +226,9 @@ export class PlaidClient{
 
             
             let holdingData = await getHoldings.json()
+
+            holdings.push({...holdingData,institution:accounts[i].institution})
             
-            holdings.push(holdingData)
         }
 
         console.log('holdings',holdings)

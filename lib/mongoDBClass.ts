@@ -119,6 +119,7 @@ export class MongoDBClass {
             }
             investmentAccounts.push({
                 access_token: decrypt(userAccounts!.accounts[i].access_token,this.encryption_key, this.ivHex),
+                institution: userAccounts!.accounts[i].institution.name,
                 account_ids: institutionAccounts
             })     
 

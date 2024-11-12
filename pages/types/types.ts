@@ -79,6 +79,7 @@ export type InvestmentAccount = {
   }
 
   export type InvestmentAccounts = {
+      institution: string;
       access_token: string
       account_ids: string[]
   }
