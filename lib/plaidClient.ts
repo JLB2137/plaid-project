@@ -167,7 +167,6 @@ export class PlaidClient{
     }
 
 
-    //access tokens need to be decrypted
     async getBalance (access_tokens:string[]) {
 
         let account

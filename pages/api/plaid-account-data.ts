@@ -1,5 +1,4 @@
 import {NextApiRequest,NextApiResponse} from "next";
-import {decrypt} from '../'
 import {PlaidClient} from "../../lib/plaidClient"
 import clientPromise from '../../lib/mongodb'
 import { MongoDBClass } from "../../lib/mongoDBClass";
