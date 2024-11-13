@@ -1,6 +1,6 @@
 import { Db } from 'mongodb';
 import { encrypt, decrypt } from './encryption';
-import { InvestmentAccounts, UserCheck } from '../pages/types/types';
+import { InvestmentAccounts, UserCheck } from '../types/types';
 import { PlaidLinkOnSuccessMetadata } from 'react-plaid-link';
 
 export class PlaidClient{

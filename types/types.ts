@@ -1,5 +1,10 @@
 import { ObjectId } from "mongodb";
 
+export interface AppContextProps {
+  signInStatus: string;
+  setSignInStatus: (status:string) => void;
+}
+
 export interface UserData {
     _id: ObjectId;
     user_id: string;
@@ -64,6 +69,11 @@ export type InvestmentAccount = {
     securities: InvestmentSecurity[];
   };
 
+  export type InvestmentHoldingsApiResponse = {
+    holdings: InvestmentHoldingsResponse[]
+    message: string
+  };
+
   export type UserAccounts = {
       id: string
       name: string
@@ -83,4 +93,54 @@ export type InvestmentAccount = {
       access_token: string
       account_ids: string[]
   }
+
+export interface GetBalancesResponse {
+  accounts: Account[];
+  item: BalanceItem;
+  request_id: string;
+}
+
+export interface Balances {
+  available: number | null;
+  current: number;
+  iso_currency_code: string | null;
+  unofficial_currency_code: string | null;
+  limit?: number | null; // For credit accounts, this may contain the account's limit
+}
+
+export interface AccountBase {
+  account_id: string;
+  balances: Balances;
+  mask: string | null;
+  name: string;
+  official_name: string | null;
+  subtype: string; // E.g., "checking", "savings", "credit card", etc.
+  type: string; // E.g., "depository", "credit", "loan", etc.
+}
+
+export interface Account extends AccountBase {
+  account_id: string;
+  balances: {
+    available: number | null;
+    current: number;
+    iso_currency_code: string | null;
+    unofficial_currency_code: string | null;
+    limit?: number | null; // For credit accounts, may contain the account's limit
+  };
+  mask: string | null;
+  name: string;
+  official_name: string | null;
+  subtype: string;
+  type: string;
+}
+
+export interface BalanceItem {
+  // Represents information about the Plaid Item associated with the response
+  item_id: string;
+  institution_id: string | null;
+  webhook: string | null;
+  error: null | Error;
+  // Other item fields as needed
+}
+
   

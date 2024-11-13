@@ -1,7 +1,7 @@
 import {Db} from 'mongodb'
 import {encrypt,decrypt} from './encryption'
-import { AccountInformationSchema } from '../pages/types/types'
-export class MongoDBClass {
+import { AccountInformationSchema } from '../types/types'
+export class MongoClient {
 
     db!: Db
     client_user_id!: string

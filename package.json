@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.7.7",
-    "@types/react": "^18.3.11",
+    "@types/react": "^18.3.12",
     "@typescript-eslint/eslint-plugin": "^8.12.2",
     "@typescript-eslint/parser": "^8.12.2",
     "prettier": "3.3.3",

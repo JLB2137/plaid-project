@@ -1,41 +1,31 @@
 import React, { useEffect, useState } from "react";
+import { useAppContext } from "../context/AppContext";
+
+import { useAuth } from "../context/AuthContext";
+import {usePlaidContext} from '../context/PlaidContext'
 import { usePlaidLink } from "react-plaid-link";
-import { Plaid } from "plaid-link";
 import { UserInfo } from '../node_modules/@firebase/auth-types'
 import { PlaidLinkOnSuccess } from "react-plaid-link";
 import { initializeApp, getApps } from "firebase/app";
-import { getAuth, signInWithPopup, signOut ,GoogleAuthProvider, browserLocalPersistence, setPersistence, onAuthStateChanged} from "firebase/auth";
-import { InvestmentHoldingsResponse, InvestmentSecurity } from "./types/types";
-import { auth } from "firebase-admin";
+import 
+{ getAuth, signInWithPopup, signOut ,GoogleAuthProvider, 
+  browserLocalPersistence, setPersistence, onAuthStateChanged
+} 
+from "firebase/auth";
+import { InvestmentHoldingsResponse } from "../types/types";
 
-const Link = () => {
+
+export default function Link() {
   const [linkToken, setLinkToken] = useState<string | null>(null);
-  const [user,setUser] = useState<UserInfo | null>(null)
-  const [signInStatus,setSignInStatus] = useState<string>('Please Sign in First')
+
+  const {user,popUpLogin,logout} = useAuth()
+
+  const {getInvestments, investments, getBalances, balances} = usePlaidContext()
+
+  console.log('user',user)
+
   const [shouldPlaidOpen,setShouldPlaidOpen] = useState<boolean>(false)
-  const [investmentHoldings, setInvestmentHoldings] = useState<InvestmentHoldingsResponse | null>(null)
   
-  const firebaseConfig = {
-    apiKey: 'AIzaSyCYYK43AFwmfljp0JeA3PajLePFv_tSYzU',
-    authDomain: "jlb-investments.firebaseapp.com",
-    projectId: "jlb-investments",
-    storageBucket: "jlb-investments.appspot.com",
-    messagingSenderId: "250755462166",
-    appId: "1:250755462166:web:e60614c2b96091b828b137",
-    measurementId: "G-SFR76BCE7B"
-  };
-  let app
-  //check if app has already been initialized
-  if(!getApps().length){
-    app = initializeApp(firebaseConfig);
-  }else{
-    app = getApps()[0]
-  }
-  const provider = new GoogleAuthProvider();
-  const auth = getAuth()
-  setPersistence(auth,browserLocalPersistence)
-
-
 
   
   const onSuccess: PlaidLinkOnSuccess = async (public_token, metadata) => {
@@ -83,43 +73,6 @@ const Link = () => {
     };
   }
 
-  const firebaseLogin = async () => {
-
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        // This gives you a Google Access Token. You can use it to access the Google API.
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential?.accessToken;
-        // The signed-in user info.
-        const user: UserInfo = result.user;
-        // IdP data available using getAdditionalUserInfo(result)
-        // ...
-        setUser(user)
-        setSignInStatus('Link Accounts')
-                
-      }).catch((error) => {
-        // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // The email of the user's account used.
-        const email = error.customData.email;
-        // The AuthCredential type that was used.
-        const credential = GoogleAuthProvider.credentialFromError(error);
-        // ...
-      });
-
-  
-
-
-
-  }
-
-  const firebaseLogout = () => {
-    signOut(auth)
-    setUser(null)
-    setSignInStatus('Please Sign in First')
-  }
-
 
 
 
@@ -140,8 +93,6 @@ const Link = () => {
       const response = await linkTokenCall.json()
 
       setLinkToken(response.linkToken.link_token)
-
-      setShouldPlaidOpen(true)
       
       console.log('LinkToken reponse',response)
 
@@ -151,61 +102,8 @@ const Link = () => {
     
   };
 
-  const getBalances = async ()=> {
 
-    try {
-      const request = await fetch('/api/plaid-account-data',{
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        method: 'POST',
-        body: JSON.stringify({
-          jlbInvestmentsId: user,
-          method: 'getBalance'
-        })
-      })
 
-      const response = await request.json()
-
-      
-      console.log('returned accounts',response)
-
-    } catch (error) {
-      console.error("Error exchanging public token:", error);
-    }
-    
-  }
-
-  const getInvestmentHoldings = async ()=> {
-
-    try {
-      const request = await fetch('/api/plaid-account-data',{
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        method: 'POST',
-        body: JSON.stringify({
-          jlbInvestmentsId: user,
-          method: 'getInvestmentHoldings'
-        })
-      })
-
-      const response = await request.json()
-
-      //setup to display holdings
-
-      //the zero here needs to be adjusted for multiple account tokens where the tokens are greater than 1 account
-
-      setInvestmentHoldings(response.holdings[0])
-
-      
-      console.log('returned investment accounts',response)
-
-    } catch (error) {
-      console.error("Error exchanging public token:", error);
-    }
-    
-  }
 
   const deleteAccount = async ()=> {
     //the accountID to delete will need to be passed and no longer be static
@@ -218,7 +116,7 @@ const Link = () => {
         body: JSON.stringify({
           jlbInvestmentsId: user,
           method: 'deleteAccount',
-          accountID: 'MA79bJeb9gcLMeRG5eqQUnbyKEmdMafLRlxnq'
+          accountID: "ZvazeJlqmvHN9lwGyNA6Idw8aLmG6zueaZVQy"
         })
       })
 
@@ -238,12 +136,7 @@ const Link = () => {
 
   const displayInvestmentHoldings = () => {
 
-
-  
-
-
-
-    if(!investmentHoldings){
+    if(!investments){
       return (
         <div>
           <p>Loading...</p>
@@ -251,58 +144,57 @@ const Link = () => {
       )
     }
     else{
-      console.log(investmentHoldings)
       const securities: { [x: string]: { name?: string; ticker?:string; closePrice?: number; costBasis?: number; quantity?: number}; } = {}
+      for(let k = 0;k<investments!.holdings.length;k++){
+        
+        let accounts = investments!.holdings[k]
+        if(accounts!.securities){
+          console.log('accounts',accounts)
+          for(let i=0; i<accounts!.securities.length;i++){
+            //console.log('accounts',accounts.securities[i])
+            securities[`${accounts!.securities[i].security_id}`] = {
+              name: accounts!.securities[i].name,
+              ticker: accounts!.securities[i].ticker_symbol!,
+              closePrice: accounts!.securities[i].close_price!
+      
+            }
+          }
+          for(let i=0; i<accounts!.holdings.length;i++){
+            //console.log('here',securities[`${accounts!.holdings[i].security_id}`])
+            //console.log('here2',accounts!.holdings[i].cost_basis)
+            securities[`${accounts!.holdings[i].security_id}`].costBasis = accounts!.holdings[i].cost_basis
+            securities[`${accounts!.holdings[i].security_id}`].quantity = accounts!.holdings[i].quantity
+          }
+        }
 
-      for(let i=0; i<investmentHoldings!.securities.length;i++){
-        securities[`${investmentHoldings!.securities[i].security_id}`] = {
-          name: investmentHoldings!.securities[i].name,
-          ticker: investmentHoldings!.securities[i].ticker_symbol!,
-          closePrice: investmentHoldings!.securities[i].close_price!
-  
-        }
       }
-      for(let i=0; i<investmentHoldings!.holdings.length;i++){
-        securities[`${investmentHoldings!.holdings[i].security_id}`].costBasis = investmentHoldings!.holdings[i].cost_basis
-        securities[`${investmentHoldings!.holdings[i].security_id}`].quantity = investmentHoldings!.holdings[i].quantity
-      }
-      return (
-        <div>
-          <ul>
-        {
-          Object.entries(securities).map(([key, value]) => (
-            <li key={key}>
-              <p>Asset Name: {value.name}</p>
-              <p>Ticker: {value.ticker}</p>
-              <p>Price: ${value.closePrice}</p>
-              <p>Quantity Owned: {value.quantity}</p>
-              <p>Market Value: ${value.quantity! * value.closePrice!}</p>
-            </li>
-  
-          ))  
-        }
-          </ul>
-        </div>
-      )
-    }
+        console.log('securities',securities)
+        return (
+          <div>
+            <ul>
+          {
+            Object.entries(securities).map(([key, value]) => (
+              <li key={key}>
+                <p>Asset Name: {value.name}</p>
+                <p>Ticker: {value.ticker}</p>
+                <p>Price: ${value.closePrice}</p>
+                <p>Quantity Owned: {value.quantity}</p>
+                <p>Market Value: ${value.quantity! * value.closePrice!}</p>
+              </li>
+    
+            ))  
+          }
+            </ul>
+          </div>
+        )
 
 
   }
+}
 
   
 
   const { open, ready, exit } = usePlaidLink(config);
-
-  useEffect(()=> {
-    onAuthStateChanged(auth,(user) => {
-      if(user){
-        setUser(user)
-        setSignInStatus('Link Accounts')
-      }else{
-        //user not signed in
-      }
-    })
-  })
   
   useEffect(()=>{
     if(ready){
@@ -310,6 +202,14 @@ const Link = () => {
     }
 
   },[ready,open])
+
+  useEffect(()=>{
+    if(balances){
+      console.log('balances',balances)
+    }else if(investments){
+      console.log('investments',investments)
+    }
+  },[balances,investments])
 
   // Render the button once pubToken is available
   // if (!linkToken) {
@@ -319,26 +219,24 @@ const Link = () => {
   return (
     <div>
       <button onClick={createLinkTokenV2} disabled={!user}>
-        {`${signInStatus}`}
+        Link Accounts
       </button>
-      <button onClick={() => getBalances()}>
+      <button onClick={getBalances}>
         Get Balances
       </button>
-      <button onClick={() => getInvestmentHoldings()}>
+      <button onClick={getInvestments}>
         Get Investment Holdings
       </button>
       <button onClick={() => deleteAccount()}>
         Delete Account
       </button>
-      <button onClick={() => firebaseLogin()} disabled={user !== null}>
+      <button onClick={popUpLogin} disabled={user !== null}>
         Sign In
       </button>
-      <button onClick={() => firebaseLogout()} disabled={!user}>
+      <button onClick={logout} disabled={!user}>
         Sign Out
       </button>
       {displayInvestmentHoldings()}
     </div>
   );
 };
-
-export default Link;

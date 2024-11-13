@@ -1,7 +1,7 @@
 import {NextApiRequest,NextApiResponse} from "next";
 import {PlaidClient} from "../../lib/plaidClient"
 import clientPromise from '../../lib/mongodb'
-import { MongoDBClass } from "../../lib/mongoDBClass";
+import { MongoClient } from "../../lib/mongoClient";
 
 
 
@@ -33,7 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
 
     //create db class access
-    const dbAccess = new MongoDBClass(db,client_user_id,encryption_key,iv_hex)
+    const dbAccess = new MongoClient(db,client_user_id,encryption_key,iv_hex)
 
     //update userID to encrypted version
     const encrypted_user_id = await dbAccess.getEncryptedUserID(client_collection) as string
