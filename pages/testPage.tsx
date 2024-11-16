@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useAppContext } from "../context/AppContext";
 
 import { useAuth } from "../context/AuthContext";
 import {usePlaidContext} from '../context/PlaidContext'
 import { usePlaidLink } from "react-plaid-link";
 import { UserInfo } from '../node_modules/@firebase/auth-types'
 import { PlaidLinkOnSuccess } from "react-plaid-link";
-import { initializeApp, getApps } from "firebase/app";
-import 
-{ getAuth, signInWithPopup, signOut ,GoogleAuthProvider, 
-  browserLocalPersistence, setPersistence, onAuthStateChanged
-} 
-from "firebase/auth";
 import { InvestmentHoldingsResponse } from "../types/types";
+import InvestmentCard from "../components/investmentCard";
+import '../styles/Home.module.css'
 
 
 export default function Link() {
@@ -22,9 +17,7 @@ export default function Link() {
 
   const {getInvestments, investments, getBalances, balances} = usePlaidContext()
 
-  console.log('user',user)
-
-  const [shouldPlaidOpen,setShouldPlaidOpen] = useState<boolean>(false)
+  //console.log('user',user)
   
 
   
@@ -75,7 +68,7 @@ export default function Link() {
 
 
 
-
+//add to the plaid context
   const createLinkTokenV2 = async () => {
     try {
       const linkTokenCall = await fetch('/api/plaid-access',{
@@ -169,25 +162,16 @@ export default function Link() {
 
       }
         console.log('securities',securities)
+        
         return (
-          <div>
-            <ul>
-          {
-            Object.entries(securities).map(([key, value]) => (
-              <li key={key}>
-                <p>Asset Name: {value.name}</p>
-                <p>Ticker: {value.ticker}</p>
-                <p>Price: ${value.closePrice}</p>
-                <p>Quantity Owned: {value.quantity}</p>
-                <p>Market Value: ${value.quantity! * value.closePrice!}</p>
-              </li>
-    
-            ))  
+          <div className="flex flex-wrap w-screen">
+            {Object.entries(securities).map(([key, value]) => (
+                <InvestmentCard key={key} investments={value}></InvestmentCard>
+      
+              ))
           }
-            </ul>
-          </div>
+        </div>
         )
-
 
   }
 }

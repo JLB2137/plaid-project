@@ -1,8 +1,8 @@
 import {NextApiRequest,NextApiResponse} from "next";
 import {PlaidClient} from "../../lib/plaidClient"
-import clientPromise from '../../lib/mongodb'
+import clientPromise from '../../lib/api/mongo/mongodb'
 import crypto from 'crypto'
-import { MongoClient } from "../../lib/mongoClient";
+import { MongoClient } from "../../lib/api/mongo/mongoClient";
 
 
 

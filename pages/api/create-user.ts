@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from "next"
-import decrypt from '../../lib/decryption'
 
 // pages/api/user/[id].js
 export default async function handler(req:NextApiRequest,res:NextApiResponse) {

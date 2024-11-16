@@ -1,7 +1,7 @@
 import { AuthProvider } from "../context/AuthContext";
 import { PlaidProvider } from "../context/PlaidContext";
 import { AppProps } from "next/app";
-//add styles here if needed
+import '../styles/global.css'
 
 function JLBinvestments({Component, pageProps}: AppProps){
     return(

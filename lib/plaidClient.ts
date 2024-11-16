@@ -230,7 +230,7 @@ export class PlaidClient{
             
         }
 
-        console.log('holdings',holdings)
+        //console.log('holdings',holdings)
 
 
         return holdings

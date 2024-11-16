@@ -110,7 +110,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "tailwind.config.Js", "postcss.config.Js"  ],
   "exclude": [
     "node_modules"
   ]

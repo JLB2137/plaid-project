@@ -44,7 +44,7 @@ export async function getInvestmentHoldings(user:User){
       //setup to display holdings
 
       //the zero here needs to be adjusted for multiple account tokens where the tokens are greater than 1 account
-      console.log('returned investment accounts',response)
+      //console.log('returned investment accounts',response)
       return response
 
       

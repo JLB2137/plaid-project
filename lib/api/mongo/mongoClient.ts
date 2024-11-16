@@ -1,6 +1,5 @@
 import {Db} from 'mongodb'
-import {encrypt,decrypt} from './encryption'
-import { AccountInformationSchema } from '../types/types'
+import {encrypt,decrypt} from '../../encryption'
 export class MongoClient {
 
     db!: Db
@@ -106,14 +105,14 @@ export class MongoClient {
         const userSearchFilter = {user_id: encryptedUserID}
         const userAccounts = await this.db.collection(account_collection!).findOne(userSearchFilter)
         let investmentAccounts = [] 
-        console.log('acc',userAccounts)
+        //console.log('acc',userAccounts)
 
         for(let i=0;i<userAccounts!.accounts.length;i++){
-            console.log('here',userAccounts!.accounts[i])
+            //console.log('here',userAccounts!.accounts[i])
             let institutionAccounts = []
             for(let j=0;j<userAccounts!.accounts[i].accounts.length;j++){
                 if(userAccounts!.accounts[i].accounts[j].type == "investment"){
-                    console.log('returned accounts',userAccounts!.accounts[i].accounts[j])
+                    //console.log('returned accounts',userAccounts!.accounts[i].accounts[j])
                     institutionAccounts.push(decrypt(userAccounts!.accounts[i].accounts[j].id, this.encryption_key, this.ivHex))
                 }           
             }
@@ -132,7 +131,7 @@ export class MongoClient {
     async deleteAccount(client_collection:string, account_collection: string, encrypted_access_token:string, encrypted_user_id: string){
         const userSearchFilter = {user_id: encrypted_user_id}
         let userAccount = await this.db.collection(account_collection!).findOne(userSearchFilter)
-        console.log('acc',userAccount)
+        //console.log('acc',userAccount)
         let accounts = userAccount!.accounts
    
         

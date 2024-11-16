@@ -1,7 +1,7 @@
 import {NextApiRequest,NextApiResponse} from "next";
 import {PlaidClient} from "../../lib/plaidClient"
-import clientPromise from '../../lib/mongodb'
-import { MongoClient } from "../../lib/mongoClient";
+import clientPromise from '../../lib/api/mongo/mongodb'
+import { MongoClient } from "../../lib/api/mongo/mongoClient";
 
 
 
@@ -22,6 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     //create the db connection
     const client = await clientPromise
     const db = client.db(client_db)
+    //console.log('db',db)
 
     const client_user_id:string = req.body.jlbInvestmentsId.uid
     const method: string = req.body.method
@@ -34,6 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     //create db class access
     const dbAccess = new MongoClient(db,client_user_id,encryption_key,iv_hex)
+
 
     //update userID to encrypted version
     const encrypted_user_id = await dbAccess.getEncryptedUserID(client_collection) as string
@@ -59,7 +61,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         try{
 
             const accounts = await dbAccess.getInvestmentAccounts(account_collection,encrypted_user_id) //returns an array of decrypted tokens
-            console.log('accounts in api',accounts)
+            //console.log('accounts in api',accounts)
             const holdings = await plaidAccess.getInvestmentHoldings(accounts) //investments for the token
             res.status(200).json({
                 message: 'Holdings called successfully',
