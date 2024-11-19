@@ -16,6 +16,7 @@ export default function Link() {
   const {user,popUpLogin,logout} = useAuth()
 
   const {getInvestments, investments, getBalances, balances} = usePlaidContext()
+  const [investmentBools,setInvestmentBools] = useState<{ [key: string]: boolean }>({})
 
   //console.log('user',user)
   
@@ -127,6 +128,24 @@ export default function Link() {
     
   }
 
+  const cardUpdate = (key:string) => {
+    console.log('key',key)
+  if(!investmentBools[key]){
+    setInvestmentBools((currentBools) =>({
+        ...currentBools,
+        [key]: true
+      }))
+  }else{
+    setInvestmentBools((currentBools) =>({
+      ...currentBools,
+      [key]: false
+    }))
+
+  }
+
+
+  } 
+
   const displayInvestmentHoldings = () => {
 
     if(!investments){
@@ -166,7 +185,7 @@ export default function Link() {
         return (
           <div className="flex flex-wrap w-screen">
             {Object.entries(securities).map(([key, value]) => (
-                <InvestmentCard key={key} investments={value}></InvestmentCard>
+                <InvestmentCard key={key} investments={value} cardState={investmentBools[key]} onClick={() => cardUpdate(key)}></InvestmentCard>
       
               ))
           }
@@ -175,6 +194,8 @@ export default function Link() {
 
   }
 }
+
+
 
   
 
