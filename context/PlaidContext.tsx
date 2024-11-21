@@ -15,7 +15,7 @@ interface PlaidContextProps {
 const PlaidContext = createContext<PlaidContextProps | null >(null);
 
 export function PlaidProvider ({children}:{children: ReactNode}) {
-    
+    //should use session storage as I don't want this to be saved when the browser is shutdown
     const [investments, setInvestments] = useState<InvestmentHoldingsApiResponse | null>(null)
     const [balances, setBalances] = useState<GetBalancesResponse[] | null>(null)
     const {user} = useAuth()

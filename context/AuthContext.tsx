@@ -6,6 +6,8 @@ import { firebasePopUpSignIn, firebaseLogout } from '../lib/api/firebase/firebas
 
 interface AuthContextProps {
     user: User | null;
+    profileFullName: string | null;
+    profileFirstName: string | null;
     popUpLogin: () => Promise<void>;
     logout: () => Promise<void>;
   }
@@ -14,10 +16,16 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [profileFullName,setProfileFullName] = useState<string | null>(null)
+  const [profileFirstName,setProfileFirstName] = useState<string | null>(null)  
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
+      if(user){
+        setProfileFullName(firebaseUser!.displayName)
+        setProfileFirstName(firebaseUser!.displayName!.split(" ")[0])
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -26,17 +34,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const loginUser = await firebasePopUpSignIn()
     if(loginUser){
         setUser(loginUser)
+        setProfileFullName(loginUser.displayName)
+        setProfileFirstName(loginUser.displayName!.split(" ")[0])
+
     }
 
   }
 
   const logout = async () => {
     await firebaseLogout()
+    setUser(null)
+    setProfileFullName(null)
+    setProfileFirstName(null)
   }
 
 
   return (
-    <AuthContext.Provider value={{ user, popUpLogin, logout }}>
+    <AuthContext.Provider value={{ user, profileFullName, profileFirstName, popUpLogin, logout }}>
       {children}
     </AuthContext.Provider>
   );

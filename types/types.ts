@@ -47,27 +47,50 @@ export type InvestmentAccount = {
   };
   
   // Security Type
-  export type InvestmentSecurity = {
-    security_id: string;
-    isin?: string;
-    cusip?: string;
-    sedol?: string;
-    ticker_symbol?: string;
-    name: string;
-    type: string; // e.g., 'stock', 'mutual fund'
-    close_price?: number;
-    close_price_as_of?: string;
-    iso_currency_code?: string;
-    unofficial_currency_code?: string;
-    institution_id?: string;
-    institution_security_id?: string;
-  };
+  export type Security = {
+      security_id: string; // A unique, Plaid-specific identifier for the security.
+      isin?: string | null; // 12-character ISIN, globally unique securities identifier.
+      cusip?: string | null; // 9-character CUSIP, North American securities identifier.
+      sedol?: string | null; // 7-character SEDOL, UK securities identifier.
+      institution_security_id?: string | null; // Identifier given to the security by the institution.
+      institution_id?: string | null; // Plaid institution_id associated with institution_security_id.
+      proxy_security_id?: string | null; // ID of another security resembling this one.
+      name?: string | null; // A descriptive name for the security.
+      ticker_symbol?: string | null; // Trading symbol or short identifier.
+      is_cash_equivalent?: boolean | null; // Indicates if the security is treated as cash.
+      type?: 
+        | "cash"
+        | "cryptocurrency"
+        | "derivative"
+        | "equity"
+        | "etf"
+        | "fixed income"
+        | "loan"
+        | "mutual fund"
+        | "other"
+        | null; // Type of security.
+      close_price?: number | null; // Price at the close of the previous trading session.
+      close_price_as_of?: string | null; // Date for which close_price is accurate (format: date).
+      update_datetime?: string | null; // Date and time close_price is accurate (format: date-time).
+      iso_currency_code?: string | null; // ISO-4217 currency code of the price.
+      unofficial_currency_code?: string | null; // Unofficial currency code (e.g., cryptocurrencies).
+      market_identifier_code?: string | null; // ISO-10383 Market Identifier Code.
+      sector?: string | null; // Sector classification of the security.
+      industry?: string | null; // Industry classification of the security.
+      option_contract?: {
+        contract_type: "put" | "call"; // Type of option contract.
+        expiration_date: string; // Expiration date of the contract (format: date).
+        strike_price: number; // Strike price of the contract.
+        underlying_security_ticker: string; // Ticker of the underlying security.
+      } | null; // Details about the option security.
+    };
+    
   
   // Main Investment Holdings Response Type
   export type InvestmentHoldingsResponse = {
     accounts: InvestmentAccount[];
     holdings: InvestmentHolding[];
-    securities: InvestmentSecurity[];
+    securities: Security[];
   };
 
   export type InvestmentHoldingsApiResponse = {

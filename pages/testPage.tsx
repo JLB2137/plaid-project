@@ -6,18 +6,20 @@ import { usePlaidLink } from "react-plaid-link";
 import { UserInfo } from '../node_modules/@firebase/auth-types'
 import { PlaidLinkOnSuccess } from "react-plaid-link";
 import { InvestmentHoldingsResponse } from "../types/types";
-import InvestmentCard from "../components/investmentCard";
+import DynamicInvestmentGrid from '../components/dynamicInvestmentGrid'
+import DynamicInvestmentGridHeaders from '../components/dynamicInvestmentGridHeaders'
+import { useRouter } from "next/router";
 import '../styles/Home.module.css'
 
 
-export default function Link() {
+export default function TestPage() {
   const [linkToken, setLinkToken] = useState<string | null>(null);
 
   const {user,popUpLogin,logout} = useAuth()
 
   const {getInvestments, investments, getBalances, balances} = usePlaidContext()
   const [investmentBools,setInvestmentBools] = useState<{ [key: string]: boolean }>({})
-
+  const router = useRouter()
   //console.log('user',user)
   
 
@@ -181,19 +183,26 @@ export default function Link() {
 
       }
         console.log('securities',securities)
-        
+        //<InvestmentCard key={key} investments={value} cardState={investmentBools[key]} onClick={() => cardUpdate(key)}></InvestmentCard>
         return (
-          <div className="flex flex-wrap w-screen">
+          <div className = "grid gap-y-0.5 p-4 grid-cols-[600px]">
+            <DynamicInvestmentGridHeaders/>
             {Object.entries(securities).map(([key, value]) => (
-                <InvestmentCard key={key} investments={value} cardState={investmentBools[key]} onClick={() => cardUpdate(key)}></InvestmentCard>
-      
+                <DynamicInvestmentGrid key={key} investment={value}/>
               ))
-          }
-        </div>
+            }
+          </div>
         )
 
   }
-}
+  }
+
+  const logOutRedirect = async () => {
+    await logout()
+    setTimeout(()=>{
+      router.push('/')
+    },100)
+  }
 
 
 
@@ -207,14 +216,6 @@ export default function Link() {
     }
 
   },[ready,open])
-
-  useEffect(()=>{
-    if(balances){
-      console.log('balances',balances)
-    }else if(investments){
-      console.log('investments',investments)
-    }
-  },[balances,investments])
 
   // Render the button once pubToken is available
   // if (!linkToken) {
@@ -238,7 +239,7 @@ export default function Link() {
       <button onClick={popUpLogin} disabled={user !== null}>
         Sign In
       </button>
-      <button onClick={logout} disabled={!user}>
+      <button onClick={logOutRedirect} disabled={!user}>
         Sign Out
       </button>
       {displayInvestmentHoldings()}

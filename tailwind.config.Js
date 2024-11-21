@@ -4,7 +4,11 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      gridAutoColumns: {
+        'fr': 'minmax(0, fr)',
+      }
+    },
   },
   plugins: [],
 };
