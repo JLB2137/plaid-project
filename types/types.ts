@@ -35,16 +35,32 @@ export type InvestmentAccount = {
   };
   
   // Holding Type
-  export type InvestmentHolding = {
+  export type Holding = {
     account_id: string;
     security_id: string;
-    quantity: number;
-    institution_value: number;
     institution_price: number;
-    cost_basis?: number;
-    iso_currency_code?: string;
-    unofficial_currency_code?: string;
+    institution_price_as_of: string | null; // Format: date
+    institution_price_datetime: string | null; // Format: ISO 8601 date-time
+    institution_value: number;
+    cost_basis: number | null;
+    quantity: number;
+    iso_currency_code: string | null; // ISO-4217 currency code
+    unofficial_currency_code: string | null; // Unofficial currency code
+    vested_quantity: number | null;
+    vested_value: number | null;
   };
+
+  export type SecurityHoldings = Security & Holding
+
+  export type ConsolidatedSecurityHoldings = Security & {
+    cost_basis: number | null;
+    quantity: number;
+    vested_quantity: number | null;
+    vested_value: number | null;
+  }
+  
+  export type Holdings = Holding[];
+  
   
   // Security Type
   export type Security = {
@@ -88,8 +104,9 @@ export type InvestmentAccount = {
   
   // Main Investment Holdings Response Type
   export type InvestmentHoldingsResponse = {
+    error_code?: any;
     accounts: InvestmentAccount[];
-    holdings: InvestmentHolding[];
+    holdings: Holding[];
     securities: Security[];
   };
 

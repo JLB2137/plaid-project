@@ -8,6 +8,7 @@ import { PlaidLinkOnSuccess } from "react-plaid-link";
 import { InvestmentHoldingsResponse } from "../types/types";
 import DynamicInvestmentGrid from '../components/dynamicInvestmentGrid'
 import DynamicInvestmentGridHeaders from '../components/dynamicInvestmentGridHeaders'
+import securityHoldings from '../lib/api/plaid/securityHoldingsMatch'
 import { useRouter } from "next/router";
 import '../styles/Home.module.css'
 
@@ -158,6 +159,15 @@ export default function TestPage() {
       )
     }
     else{
+
+      let institutionalHoldings = []
+      for(let i=0;i<investments.holdings.length;i++){
+        if(!investments.holdings[i].error_code){
+          institutionalHoldings.push(securityHoldings(investments.holdings[i].holdings,investments.holdings[i].securities))
+        }
+        
+      }
+
       const securities: { [x: string]: { name?: string; ticker?:string; closePrice?: number; costBasis?: number; quantity?: number}; } = {}
       for(let k = 0;k<investments!.holdings.length;k++){
         
@@ -182,11 +192,16 @@ export default function TestPage() {
         }
 
       }
+      //needs adjustments for in Dynamicgrid because of new key names
         console.log('securities',securities)
         //<InvestmentCard key={key} investments={value} cardState={investmentBools[key]} onClick={() => cardUpdate(key)}></InvestmentCard>
         return (
           <div className = "grid gap-y-0.5 p-4 grid-cols-[600px]">
             <DynamicInvestmentGridHeaders/>
+            {Object.entries(securities).map(([key, value]) => (
+                <DynamicInvestmentGrid key={key} investment={value}/>
+              ))
+            }
             {Object.entries(securities).map(([key, value]) => (
                 <DynamicInvestmentGrid key={key} investment={value}/>
               ))

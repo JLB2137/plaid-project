@@ -1,35 +1,20 @@
-import ''
-const securityHoldingsMatch = () => {
-    if(!investments){
-        return (
-          <div>
-            <p>Loading...</p>
-          </div>
-        )
-      }
-      else{
-        const securities: { [x: string]: { name?: string; ticker?:string; closePrice?: number; costBasis?: number; quantity?: number}; } = {}
-        for(let k = 0;k<investments!.holdings.length;k++){
-          
-          let accounts = investments!.holdings[k]
-          if(accounts!.securities){
-            console.log('accounts',accounts)
-            for(let i=0; i<accounts!.securities.length;i++){
-              //console.log('accounts',accounts.securities[i])
-              securities[`${accounts!.securities[i].security_id}`] = {
-                name: accounts!.securities[i].name,
-                ticker: accounts!.securities[i].ticker_symbol!,
-                closePrice: accounts!.securities[i].close_price!
-        
-              }
-            }
-            for(let i=0; i<accounts!.holdings.length;i++){
-              //console.log('here',securities[`${accounts!.holdings[i].security_id}`])
-              //console.log('here2',accounts!.holdings[i].cost_basis)
-              securities[`${accounts!.holdings[i].security_id}`].costBasis = accounts!.holdings[i].cost_basis
-              securities[`${accounts!.holdings[i].security_id}`].quantity = accounts!.holdings[i].quantity
-            }
-          }
-  
+import { Holding, Security, SecurityHoldings} from "../../../types/types"
+//matches holdings to their corresponding securities and
+//organizes them based on which account holds them 
+export default function securityHoldingsMatch(holdings: Holding[],securities: Security[]) {
+        let securityHoldings: SecurityHoldings[] = []
+        //bring in holdings
+        //bring in securities
+
+        let securityDict: { [key: string]: Security } = {};
+
+        for(let i=0;i<securities.length;i++){
+          securityDict[securities[i].security_id] = securities[i]
         }
+
+        for(let i=0;i<holdings.length;i++){
+          securityHoldings.push({...holdings[i],...securityDict[holdings[i].security_id]})
+        }
+
+        return securityHoldings
 }
