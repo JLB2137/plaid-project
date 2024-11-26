@@ -58,7 +58,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const public_token = req.body.public_token
         try {
 
-            const createdAccessToken = await plaidAccess.getAccessToken(public_token, db, client_collection,account_collection, metadata, userCheck.newUser)
+            const createdAccessToken = await plaidAccess.getAccessToken(public_token, db, client_collection,account_collection, investment_collection, metadata, userCheck.newUser)
             //const result = await accessTokenSaved   
             //console.log('returned info in plaid-access for access token',result)
             res.status(200).json({

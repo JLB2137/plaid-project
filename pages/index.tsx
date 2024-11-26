@@ -42,11 +42,10 @@ export default function WelcomePage() {
   }
 
   useEffect(() => {
-    console.log(siteName)
     const typeLetters = ()=> {
-      console.log('index',index)
+      //console.log('index',index)
       if (index<siteName.length){
-        console.log('siteName[index]',siteName[index])
+        //console.log('siteName[index]',siteName[index])
         setIndex(index=>index+1)
         setHeader(header=>header+siteName[index])
       }else{

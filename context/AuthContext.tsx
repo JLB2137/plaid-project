@@ -22,10 +22,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
-      if(user){
-        setProfileFullName(firebaseUser!.displayName)
-        setProfileFirstName(firebaseUser!.displayName!.split(" ")[0])
+      //start the chain of events based on sign-in persistence
+      if(firebaseUser){
+        setProfileFullName(firebaseUser.displayName)
+        setProfileFirstName(firebaseUser.displayName!.split(" ")[0])
       }
+
     });
     return () => unsubscribe();
   }, []);

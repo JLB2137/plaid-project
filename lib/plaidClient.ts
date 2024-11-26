@@ -54,7 +54,7 @@ export class PlaidClient{
 
     //adjust the access token save to also save the metadata for each account
     //account_collection?:string,
-    async getAccessToken(public_token:string, db:Db, client_collection:string, account_collection:string, metadata:PlaidLinkOnSuccessMetadata, newUser: boolean) {
+    async getAccessToken(public_token:string, db:Db, client_collection:string, account_collection:string, investment_collection:string,metadata:PlaidLinkOnSuccessMetadata, newUser: boolean) {
         
         const body = {
             "client_id": `${this.client_id}`,
@@ -111,9 +111,16 @@ export class PlaidClient{
                 user_id: this.client_user_id,
                 accounts: [accounts]
             }
+            const investmenstConfig = {
+                user_id: this.client_user_id,
+                investments: ""
+            }
+            //on new user, create a document for all collections
             await db.collection(client_collection).insertOne(userConfig)
             await db.collection(account_collection).insertOne(accountConfig)
+            await db.collection(investment_collection).insertOne(investmenstConfig)
         }else{
+            //when users aren't new, need to update client tokens list and accout information list
             const userSearchFilter = {user_id: this.client_user_id}
             const foundUser = await db.collection(client_collection).findOne(userSearchFilter)
 

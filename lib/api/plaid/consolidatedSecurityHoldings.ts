@@ -1,26 +1,24 @@
-import { ConsolidatedSecurityHoldings, Holding, Security, SecurityHoldings} from "../../../types/types"
+import { ConsolidatedSecurityHoldings, SecurityHoldings} from "../../../types/types"
 //matches holdings to their corresponding securities and
 //organizes them based on which account holds them 
-export default function consolidatedSecurityHoldings(securityHoldingsByInstitution: [SecurityHoldings[]]) {
+export default function consolidatedSecurityHoldings(securityHoldingsByInstitution: SecurityHoldings[][]) {
         
-      let consolidatedHoldings = []
-        //bring in holdings
-        //bring in securities
-
-        let securityDict: { [key: string]: ConsolidatedSecurityHoldings } = {};
-
+        let securitiesDict: { [key: string]: ConsolidatedSecurityHoldings } = {};
+        //iterate through all institutions and their holdings in double loop
         for(let i=0; i<securityHoldingsByInstitution.length;i++){
           for(let j=0;j<securityHoldingsByInstitution[i].length;j++){
-            if(securityDict[securityHoldingsByInstitution[i][j].security_id]){
+            if(securitiesDict[securityHoldingsByInstitution[i][j].security_id] && securitiesDict[securityHoldingsByInstitution[i][j].security_id].cost_basis){
               //adjust cost basis to new avg price using //quantity+quantity=>
               //quantity1/total*price + quantity2/total*price
+              const newCostBasis = securityHoldingsByInstitution[i][j].cost_basis! + securitiesDict[securityHoldingsByInstitution[i][j].security_id].cost_basis!
+              const newQuantity = securitiesDict[securityHoldingsByInstitution[i][j].security_id].quantity + securityHoldingsByInstitution[i][j].quantity
+              securitiesDict[securityHoldingsByInstitution[i][j].security_id].cost_basis = newCostBasis
+              securitiesDict[securityHoldingsByInstitution[i][j].security_id].quantity = newQuantity
+            }else{
+              securitiesDict[securityHoldingsByInstitution[i][j].security_id] = securityHoldingsByInstitution[i][j]
             }
           }
         }
 
-        for(let i=0;i<holdings.length;i++){
-          securityHoldings.push({...holdings[i],...securityDict[holdings[i].security_id]})
-        }
-
-        return securityHoldings
+        return securitiesDict
 }

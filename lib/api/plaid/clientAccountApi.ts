@@ -1,5 +1,54 @@
 import { User } from "firebase/auth";
 
+export async function onSuccess(public_token, metadata,user){
+  console.log("Plaid public token received:", public_token);
+
+  console.log('metadata',metadata)
+
+  try {
+    const accessTokenSave = await fetch('/api/plaid-access',{
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        methodChoice: 'getAccessToken',
+        public_token: public_token,
+        metadata: metadata,
+        jlbInvestmentsId: user
+
+      })
+    })
+  } catch (error) {
+    console.error("Error exchanging public token:", error);
+  }
+};
+
+export async function initLinkToken(user){
+  try {
+    const linkTokenCall = await fetch('/api/plaid-access',{
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        methodChoice: 'createLinkToken',
+        products: ["auth","transactions","investments","liabilities"],
+        jlbInvestmentsId: user
+      })
+    })
+
+    const response = await linkTokenCall.json()
+
+    return response
+    
+
+  } catch (error) {
+    console.error("Error exchanging public token:", error);
+  }
+  
+};
+
 export async function getBalances(user:User){
 
     try {

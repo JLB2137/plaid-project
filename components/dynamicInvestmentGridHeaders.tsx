@@ -1,10 +1,10 @@
 import {motion} from 'framer-motion'
 const InvestmentGridHeaders = () => {
-    const headerProperties = "col-span-1 text-xs font-bold italic border-r"
+    const headerProperties = "col-span-1 text-xs font-bold italic"
     return(
         <motion.div
         key='headers'
-        className="grid grid-row-1 grid-cols-6 bg-slate-400 text-black text-center p-4 shadow-lg"
+        className="grid grid-row-1 grid-cols-8 bg-slate-400 text-black text-center p-4 shadow-lg"
         initial={{opacity: 0, y:50}}
         animate={{opacity: 1, y:0}}
         transition={{duration: .5}}
@@ -15,6 +15,8 @@ const InvestmentGridHeaders = () => {
             <h2 className={headerProperties}>Quantity</h2>
             <h2 className={headerProperties}>Cost Basis</h2>
             <h2 className={headerProperties}>Market Value</h2>
+            <h2 className={headerProperties}>Unrealized P&L</h2>
+            <h2 className={headerProperties}>Unrealized Gain %</h2>
         </motion.div>
     )
 }

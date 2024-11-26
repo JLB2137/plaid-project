@@ -7,49 +7,28 @@ import { UserInfo } from '../node_modules/@firebase/auth-types'
 import { PlaidLinkOnSuccess } from "react-plaid-link";
 import { InvestmentHoldingsResponse } from "../types/types";
 import DynamicInvestmentGrid from '../components/dynamicInvestmentGrid'
+import {motion} from 'framer-motion'
 import DynamicInvestmentGridHeaders from '../components/dynamicInvestmentGridHeaders'
+import AccountBalanceGrid from '../components/accountBalanceGrid'
+import AccountBalanceGridHeaders from '../components/AccountBalanceGridHeaders'
+import balanceDesconstructor from "../lib/api/plaid/balanceDescontructor";
 import securityHoldings from '../lib/api/plaid/securityHoldingsMatch'
 import { useRouter } from "next/router";
 import '../styles/Home.module.css'
+import consolidatedSecurityHoldings from "../lib/api/plaid/consolidatedSecurityHoldings";
+import { flexBoxItems, flexBoxScrollBars } from "../styles/constants";
 
 
 export default function TestPage() {
-  const [linkToken, setLinkToken] = useState<string | null>(null);
+
+
 
   const {user,popUpLogin,logout} = useAuth()
 
-  const {getInvestments, investments, getBalances, balances} = usePlaidContext()
+  const {getInvestments, investments, getBalances, balances,initToken,onSuccess,linkToken} = usePlaidContext()
   const [investmentBools,setInvestmentBools] = useState<{ [key: string]: boolean }>({})
   const router = useRouter()
   //console.log('user',user)
-  
-
-  
-  const onSuccess: PlaidLinkOnSuccess = async (public_token, metadata) => {
-    console.log("Plaid public token received:", public_token);
-
-    console.log('metadata',metadata)
-
-    try {
-      const accessTokenSave = await fetch('/api/plaid-access',{
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        method: 'POST',
-        body: JSON.stringify({
-          methodChoice: 'getAccessToken',
-          public_token: public_token,
-          metadata: metadata,
-          jlbInvestmentsId: user
-
-        })
-      })
-      setLinkToken(null)
-      console.log('acces', accessTokenSave)
-    } catch (error) {
-      console.error("Error exchanging public token:", error);
-    }
-  };
 
 
   //need to find a way to clean this up
@@ -73,31 +52,7 @@ export default function TestPage() {
 
 
 //add to the plaid context
-  const createLinkTokenV2 = async () => {
-    try {
-      const linkTokenCall = await fetch('/api/plaid-access',{
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        method: 'POST',
-        body: JSON.stringify({
-          methodChoice: 'createLinkToken',
-          products: ["auth","transactions","investments","liabilities"],
-          jlbInvestmentsId: user
-        })
-      })
 
-      const response = await linkTokenCall.json()
-
-      setLinkToken(response.linkToken.link_token)
-      
-      console.log('LinkToken reponse',response)
-
-    } catch (error) {
-      console.error("Error exchanging public token:", error);
-    }
-    
-  };
 
 
 
@@ -133,23 +88,53 @@ export default function TestPage() {
 
   const cardUpdate = (key:string) => {
     console.log('key',key)
-  if(!investmentBools[key]){
-    setInvestmentBools((currentBools) =>({
+    if(!investmentBools[key]){
+      setInvestmentBools((currentBools) =>({
+          ...currentBools,
+          [key]: true
+        }))
+    }else{
+      setInvestmentBools((currentBools) =>({
         ...currentBools,
-        [key]: true
+        [key]: false
       }))
-  }else{
-    setInvestmentBools((currentBools) =>({
-      ...currentBools,
-      [key]: false
-    }))
 
-  }
+    }
 
 
   } 
 
-  const displayInvestmentHoldings = () => {
+  const balanceGrid = () => {
+    if(!balances){
+      return (
+        <div>
+          <p>Loading...</p>
+        </div>
+      )
+    }else{
+
+      const accounts = balanceDesconstructor(balances)
+      console.log('here',[flexBoxItems+flexBoxScrollBars])
+
+      return(
+        <div className={flexBoxItems+flexBoxScrollBars} >
+          <AccountBalanceGridHeaders />
+          {
+            
+          accounts.map((account)=>
+            <AccountBalanceGrid account={account} />
+            )
+          
+          }
+        </div>
+        
+      )
+
+    }
+
+  }
+
+  const investmentGrid = () => {
 
     if(!investments){
       return (
@@ -160,6 +145,7 @@ export default function TestPage() {
     }
     else{
 
+      console.log('investments',investments)
       let institutionalHoldings = []
       for(let i=0;i<investments.holdings.length;i++){
         if(!investments.holdings[i].error_code){
@@ -167,46 +153,24 @@ export default function TestPage() {
         }
         
       }
+      let consolidatedHoldings = consolidatedSecurityHoldings(institutionalHoldings)
 
-      const securities: { [x: string]: { name?: string; ticker?:string; closePrice?: number; costBasis?: number; quantity?: number}; } = {}
-      for(let k = 0;k<investments!.holdings.length;k++){
-        
-        let accounts = investments!.holdings[k]
-        if(accounts!.securities){
-          console.log('accounts',accounts)
-          for(let i=0; i<accounts!.securities.length;i++){
-            //console.log('accounts',accounts.securities[i])
-            securities[`${accounts!.securities[i].security_id}`] = {
-              name: accounts!.securities[i].name,
-              ticker: accounts!.securities[i].ticker_symbol!,
-              closePrice: accounts!.securities[i].close_price!
-      
-            }
-          }
-          for(let i=0; i<accounts!.holdings.length;i++){
-            //console.log('here',securities[`${accounts!.holdings[i].security_id}`])
-            //console.log('here2',accounts!.holdings[i].cost_basis)
-            securities[`${accounts!.holdings[i].security_id}`].costBasis = accounts!.holdings[i].cost_basis
-            securities[`${accounts!.holdings[i].security_id}`].quantity = accounts!.holdings[i].quantity
-          }
-        }
 
-      }
-      //needs adjustments for in Dynamicgrid because of new key names
-        console.log('securities',securities)
-        //<InvestmentCard key={key} investments={value} cardState={investmentBools[key]} onClick={() => cardUpdate(key)}></InvestmentCard>
         return (
-          <div className = "grid gap-y-0.5 p-4 grid-cols-[600px]">
+          <motion.div
+          key="investment grid"
+          initial={{opacity: 0, y:50, maxHeight:"30%", overflow:"hidden"}}
+          whileHover={{overflow:"auto", maxHeight: "100%"}}
+          animate={{opacity: 1, y:0}}
+          transition={{duration: 1, ease: "easeInOut"}}
+          className={flexBoxItems+flexBoxScrollBars}
+          >
             <DynamicInvestmentGridHeaders/>
-            {Object.entries(securities).map(([key, value]) => (
+            {Object.entries(consolidatedHoldings).map(([key, value]) => (
                 <DynamicInvestmentGrid key={key} investment={value}/>
               ))
             }
-            {Object.entries(securities).map(([key, value]) => (
-                <DynamicInvestmentGrid key={key} investment={value}/>
-              ))
-            }
-          </div>
+          </motion.div>
         )
 
   }
@@ -232,6 +196,10 @@ export default function TestPage() {
 
   },[ready,open])
 
+  useEffect(()=>{
+    console.log('balances',balances)
+  },[balances])
+
   // Render the button once pubToken is available
   // if (!linkToken) {
   //   return <div>Loading...</div>; // Show a loading state while the token is being fetched
@@ -239,7 +207,7 @@ export default function TestPage() {
 
   return (
     <div>
-      <button onClick={createLinkTokenV2} disabled={!user}>
+      <button onClick={initToken} disabled={!user}>
         Link Accounts
       </button>
       <button onClick={getBalances}>
@@ -257,7 +225,10 @@ export default function TestPage() {
       <button onClick={logOutRedirect} disabled={!user}>
         Sign Out
       </button>
-      {displayInvestmentHoldings()}
+      <div className="flex h-screen p-4 gap-x-10">
+        {investmentGrid()}
+        {balanceGrid()}
+      </div>
     </div>
   );
 };

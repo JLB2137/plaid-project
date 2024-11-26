@@ -2,6 +2,7 @@ import {NextApiRequest,NextApiResponse} from "next";
 import {PlaidClient} from "../../lib/plaidClient"
 import clientPromise from '../../lib/api/mongo/mongodb'
 import { MongoClient } from "../../lib/api/mongo/mongoClient";
+import { InvestmentHoldingsApiResponse } from "../../types/types";
 
 
 
@@ -11,6 +12,7 @@ const env_url = process.env.PLAID_ENV_URL!
 //NEED to replace this user ID with one that is encrypted from google prof
 const client_collection = process.env.CLIENT_COLLECTION!
 const account_collection = process.env.ACCOUNT_COLLECTION!
+const investment_collection = process.env.INVESTMENT_COLLECTION!
 const client_db = process.env.CLIENT_DB!
 const encryption_key = process.env.ENCRYPTION_KEY!
 const iv_hex = process.env.IV_HEX!
@@ -62,7 +64,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             const accounts = await dbAccess.getInvestmentAccounts(account_collection,encrypted_user_id) //returns an array of decrypted tokens
             //console.log('accounts in api',accounts)
-            const holdings = await plaidAccess.getInvestmentHoldings(accounts) //investments for the token
+            const holdings: InvestmentHoldingsApiResponse[] = await plaidAccess.getInvestmentHoldings(accounts) //investments for the token
+            //cache the holdings to be used later
+            await dbAccess.cacheInvestments(investment_collection,holdings,encrypted_user_id)
             res.status(200).json({
                 message: 'Holdings called successfully',
                 holdings: holdings
