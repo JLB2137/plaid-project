@@ -107,23 +107,25 @@ export class MongoClient {
         const userAccounts = await this.db.collection(account_collection!).findOne(userSearchFilter)
         let investmentAccounts = [] 
         //console.log('acc',userAccounts)
-
-        for(let i=0;i<userAccounts!.accounts.length;i++){
-            //console.log('here',userAccounts!.accounts[i])
-            let institutionAccounts = []
-            for(let j=0;j<userAccounts!.accounts[i].accounts.length;j++){
-                if(userAccounts!.accounts[i].accounts[j].type == "investment"){
-                    //console.log('returned accounts',userAccounts!.accounts[i].accounts[j])
-                    institutionAccounts.push(decrypt(userAccounts!.accounts[i].accounts[j].id, this.encryption_key, this.ivHex))
-                }           
+        if(userAccounts){
+            for(let i=0;i<userAccounts!.accounts.length;i++){
+                //console.log('here',userAccounts!.accounts[i])
+                let institutionAccounts = []
+                for(let j=0;j<userAccounts!.accounts[i].accounts.length;j++){
+                    if(userAccounts!.accounts[i].accounts[j].type == "investment"){
+                        //console.log('returned accounts',userAccounts!.accounts[i].accounts[j])
+                        institutionAccounts.push(decrypt(userAccounts!.accounts[i].accounts[j].id, this.encryption_key, this.ivHex))
+                    }           
+                }
+                investmentAccounts.push({
+                    access_token: decrypt(userAccounts!.accounts[i].access_token,this.encryption_key, this.ivHex),
+                    institution: userAccounts!.accounts[i].institution.name,
+                    account_ids: institutionAccounts
+                })     
+    
             }
-            investmentAccounts.push({
-                access_token: decrypt(userAccounts!.accounts[i].access_token,this.encryption_key, this.ivHex),
-                institution: userAccounts!.accounts[i].institution.name,
-                account_ids: institutionAccounts
-            })     
-
         }
+
 
         return investmentAccounts
         
@@ -191,13 +193,18 @@ export class MongoClient {
     async getInvestmentsCache(investments_collection:string, encrypted_user_id: string) {
         //need to parse output from DB for account token and subsequent account IDs
         const userInvestments = await this.db.collection(investments_collection).findOne({ user_id: encrypted_user_id })
-        
+        let investments
 
-        let investments = decrypt(userInvestments!.investments,this.encryption_key, this.ivHex)
+        if(userInvestments){
+            investments = decrypt(userInvestments!.investments,this.encryption_key, this.ivHex)
 
-        investments = JSON.parse(investments)
+            investments = JSON.parse(investments)
+    
+            console.log('investments',investments)
+        }else{
+            investments = null 
+        }
 
-        console.log('investments',investments)
 
         
 

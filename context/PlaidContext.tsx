@@ -35,7 +35,10 @@ export function PlaidProvider ({children}:{children: ReactNode}) {
     useEffect(()=> {
         const cacheImport = async () => {
             if(user){
-                setInvestments(await getInvestmentsCache(user))
+                const investments = await getInvestmentsCache(user)
+                if(investments.holdings){
+                    setInvestments(investments)
+                }
             }
         }
         cacheImport()

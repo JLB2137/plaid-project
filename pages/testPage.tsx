@@ -136,14 +136,19 @@ export default function TestPage() {
 
   const investmentGrid = () => {
 
-    if(!investments){
+    if(!investments?.holdings){
       return (
         <div>
           <p>Loading...</p>
         </div>
       )
-    }
-    else{
+    }else if(investments.holdings.length==0){
+      return (
+        <div>
+          <p>Your holdings don't exist, please link accounts</p>
+        </div>
+      )
+    }else{
 
       console.log('investments',investments)
       let institutionalHoldings = []
