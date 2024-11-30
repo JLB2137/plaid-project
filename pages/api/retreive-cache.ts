@@ -1,5 +1,5 @@
 import {NextApiRequest,NextApiResponse} from "next";
-import {PlaidClient} from "../../lib/plaidClient"
+import {PlaidClient} from "../../lib/api/plaid/plaidClient"
 import clientPromise from '../../lib/api/mongo/mongodb'
 import { MongoClient } from "../../lib/api/mongo/mongoClient";
 import { InvestmentHoldingsApiResponse } from "../../types/types";
@@ -9,6 +9,7 @@ import { InvestmentHoldingsApiResponse } from "../../types/types";
 //NEED to replace this user ID with one that is encrypted from google prof
 const client_collection = process.env.CLIENT_COLLECTION!
 const investment_collection = process.env.INVESTMENT_COLLECTION!
+const balance_collection = process.env.BALANCE_COLLECTION!
 const client_db = process.env.CLIENT_DB!
 const encryption_key = process.env.ENCRYPTION_KEY!
 const iv_hex = process.env.IV_HEX!
@@ -50,6 +51,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             console.log('error',error)
             res.status(500).json({
                 message: 'Error retreiving investment cache from DB',
+                err: error
+            })
+        }
+    }else if(method == 'getBalances'){
+        try{
+            const balances = await dbAccess.getBalanceCache(balance_collection,encrypted_user_id)
+            res.status(200).json({
+                message: 'Balances retreived successfully',
+                accounts: balances
+            })
+        }catch(error){
+            console.log('error',error)
+            res.status(500).json({
+                message: 'Error retreiving balance cache from DB',
                 err: error
             })
         }

@@ -7,7 +7,7 @@ function JLBinvestments({Component, pageProps}: AppProps){
     return(
         <AuthProvider>
             <PlaidProvider>
-                <Component {...pageProps}/>
+                <Component {...pageProps} className="font-sans"/>
             </PlaidProvider>
         </AuthProvider>
     )

@@ -8,7 +8,7 @@ import {
     initLinkToken as clientInitToken
 
 } from '../lib/api/plaid/clientAccountApi'
-import { getInvestmentsCache } from '../lib/api/mongo/clientMongoApi'
+import { getInvestmentsCache, getBalanceCache } from '../lib/api/mongo/clientMongoApi'
 import { User } from 'firebase/auth'
 import {useAuth} from './AuthContext'
 
@@ -38,6 +38,11 @@ export function PlaidProvider ({children}:{children: ReactNode}) {
                 const investments = await getInvestmentsCache(user)
                 if(investments.holdings){
                     setInvestments(investments)
+                }
+                const balances = await getBalanceCache(user)
+                console.log('balances retr',balances.accounts)
+                if(balances.accounts){
+                    setBalances(balances.accounts)
                 }
             }
         }

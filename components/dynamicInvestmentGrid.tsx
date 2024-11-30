@@ -1,5 +1,5 @@
 import {motion} from 'framer-motion'
-import {numberFormatting} from '../lib/numberTextFormatting'
+import {numberFormatting} from '../lib/front-end/numberTextFormatting'
 import {flexBoxScrollBars} from '../styles/constants'
 const DynamicInvestmentGrid = ({key, investment}) => {
     const investmentProperties = "col-span-1 text-sm"

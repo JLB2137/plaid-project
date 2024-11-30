@@ -8,6 +8,9 @@ module.exports = {
     extend: {
       gridAutoColumns: {
         'fr': 'minmax(0, fr)',
+      },
+      fontFamily: {
+        sans: ['Lato', 'ui-sans-serif', 'system-ui'],
       }
     },
   },

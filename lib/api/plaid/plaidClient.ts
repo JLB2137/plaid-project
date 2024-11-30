@@ -1,6 +1,6 @@
 import { Db } from 'mongodb';
-import { encrypt, decrypt } from './encryption';
-import { InvestmentAccounts, UserCheck } from '../types/types';
+import { encrypt, decrypt } from '../../encryption';
+import { InvestmentAccounts, UserCheck } from '../../../types/types';
 import { PlaidLinkOnSuccessMetadata } from 'react-plaid-link';
 
 export class PlaidClient{
@@ -12,15 +12,24 @@ export class PlaidClient{
     encryption_key!: string
     ivHex!: string
     client_user_id!: string
+    client_collection!:string
+    account_collection!:string
+    investment_collection!:string
+    balance_collection!:string
+
     
 
-    constructor(secret:string, client_id:string, env_url:string, encryptedUserID: string, encryption_key:string, iv_hex:string){
+    constructor(secret:string, client_id:string, env_url:string, encryptedUserID: string, encryption_key:string, iv_hex:string, client_collection:string, account_collection:string, investment_collection:string, balance_collection:string){
         this.secret = secret
         this.client_id = client_id
         this.env_url= env_url
         this.encryption_key = encryption_key
         this.ivHex = iv_hex
         this.client_user_id = encryptedUserID
+        this.client_collection=client_collection
+        this.account_collection=account_collection
+        this.investment_collection=investment_collection
+        this.balance_collection=balance_collection
 
     }
 
@@ -54,7 +63,7 @@ export class PlaidClient{
 
     //adjust the access token save to also save the metadata for each account
     //account_collection?:string,
-    async getAccessToken(public_token:string, db:Db, client_collection:string, account_collection:string, investment_collection:string,metadata:PlaidLinkOnSuccessMetadata, newUser: boolean) {
+    async getAccessToken(public_token:string, db:Db, metadata:PlaidLinkOnSuccessMetadata, newUser: boolean) {
         
         const body = {
             "client_id": `${this.client_id}`,
@@ -115,14 +124,19 @@ export class PlaidClient{
                 user_id: this.client_user_id,
                 investments: ""
             }
+            const balanceConfig = {
+                user_id: this.client_user_id,
+                balances: ""
+            }
             //on new user, create a document for all collections
-            await db.collection(client_collection).insertOne(userConfig)
-            await db.collection(account_collection).insertOne(accountConfig)
-            await db.collection(investment_collection).insertOne(investmenstConfig)
+            await db.collection(this.client_collection).insertOne(userConfig)
+            await db.collection(this.account_collection).insertOne(accountConfig)
+            await db.collection(this.investment_collection).insertOne(investmenstConfig)
+            await db.collection(this.balance_collection).insertOne(balanceConfig)
         }else{
             //when users aren't new, need to update client tokens list and accout information list
             const userSearchFilter = {user_id: this.client_user_id}
-            const foundUser = await db.collection(client_collection).findOne(userSearchFilter)
+            const foundUser = await db.collection(this.client_collection).findOne(userSearchFilter)
 
             let accessTokenList = foundUser!.access_tokens
                 accessTokenList.push(accessToken)
@@ -130,9 +144,9 @@ export class PlaidClient{
                     //need to create the access token above from the exchange w public
                     $set: { access_tokens: accessTokenList }
                 }
-                await db.collection(client_collection).updateOne(userSearchFilter,updatedAccessTokenList)
+                await db.collection(this.client_collection).updateOne(userSearchFilter,updatedAccessTokenList)
             
-            const userAccountsDocument = await db.collection(account_collection).findOne(userSearchFilter)
+            const userAccountsDocument = await db.collection(this.account_collection).findOne(userSearchFilter)
             console.log('documents',userAccountsDocument)
             let userAccounts = userAccountsDocument!.accounts
             console.log('accounts',userAccounts)
@@ -141,7 +155,7 @@ export class PlaidClient{
             const updatedAccountList = {
                 $set: { accounts: userAccounts }
             }
-            await db.collection(account_collection).updateOne(userSearchFilter,updatedAccountList)
+            await db.collection(this.account_collection).updateOne(userSearchFilter,updatedAccountList)
              
         }
         

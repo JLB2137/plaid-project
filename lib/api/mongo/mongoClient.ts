@@ -1,6 +1,6 @@
 import {Db} from 'mongodb'
 import {encrypt,decrypt} from '../../encryption'
-import { InvestmentHoldingsApiResponse } from '../../../types/types'
+import { GetBalancesResponse, InvestmentHoldingsApiResponse } from '../../../types/types'
 export class MongoClient {
 
     db!: Db
@@ -214,5 +214,53 @@ export class MongoClient {
         return investments
 
     }
+
+    async cacheBalances (balance_collection:string,clientBalances: GetBalancesResponse[], encrypted_user_id: string) {
+        //need to parse output from DB for account token and subsequent account IDs
+
+        const stringified = JSON.stringify(clientBalances)
+
+        const encryptedBalances = encrypt(stringified,this.encryption_key, this.ivHex)
+
+        //need to check if the user exists... 
+        const userSearchFilter = {user_id: encrypted_user_id}
+        //overwrites existing information here
+        const updatedAccessTokenList = {
+            //need to create the access token above from the exchange w public
+            $set: { balances: encryptedBalances }
+        }
+        await this.db.collection(balance_collection).updateOne(userSearchFilter,updatedAccessTokenList)
+
+
+    }
+
+    async getBalanceCache(balance_collection:string, encrypted_user_id: string) {
+        //need to parse output from DB for account token and subsequent account IDs
+        const userBalances = await this.db.collection(balance_collection).findOne({ user_id: encrypted_user_id })
+        let balances
+
+        console.log('user balances',userBalances)
+
+        if(userBalances){
+            balances = decrypt(userBalances!.balances,this.encryption_key, this.ivHex)
+
+            balances = JSON.parse(balances)
+    
+            console.log('balances cache',balances)
+        }else{
+            balances = null 
+        }
+
+
+        
+
+        
+        
+
+        return balances
+
+    }
+
+    
 
 }

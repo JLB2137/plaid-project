@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
 html,
 body {
   padding: 0;
@@ -37,7 +38,6 @@ img {
 button {
   all: unset; /* Resets TailwindCSS styles for buttons */
   padding: 0.5rem 1rem;
-  border: 1px solid black;
   background-color: white;
   border-radius: 4px;
   cursor: pointer;

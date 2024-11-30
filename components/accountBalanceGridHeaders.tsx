@@ -4,8 +4,8 @@ const AccountBalanceGridHeaders = () => {
 
     return(
         <motion.div
-        key='headers'
-        className="grid grid-row-1 grid-cols-3 bg-transparent text-black text-center p-4"
+        key='balance headers'
+        className="grid grid-row-1 grid-cols-3 bg-slate-400 text-black text-center p-4 shadow-lg"
         initial={{opacity: 0, y:50}}
         animate={{opacity: 1, y:0}}
         transition={{duration: .5}}

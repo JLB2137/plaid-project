@@ -1,8 +1,8 @@
 import {NextApiRequest,NextApiResponse} from "next";
-import {PlaidClient} from "../../lib/plaidClient"
+import {PlaidClient} from "../../lib/api/plaid/plaidClient"
 import clientPromise from '../../lib/api/mongo/mongodb'
 import { MongoClient } from "../../lib/api/mongo/mongoClient";
-import { InvestmentHoldingsApiResponse } from "../../types/types";
+import { GetBalancesResponse, InvestmentHoldingsApiResponse } from "../../types/types";
 
 
 
@@ -13,6 +13,7 @@ const env_url = process.env.PLAID_ENV_URL!
 const client_collection = process.env.CLIENT_COLLECTION!
 const account_collection = process.env.ACCOUNT_COLLECTION!
 const investment_collection = process.env.INVESTMENT_COLLECTION!
+const balance_collection = process.env.BALANCE_COLLECTION!
 const client_db = process.env.CLIENT_DB!
 const encryption_key = process.env.ENCRYPTION_KEY!
 const iv_hex = process.env.IV_HEX!
@@ -41,13 +42,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     //update userID to encrypted version
     const encrypted_user_id = await dbAccess.getEncryptedUserID(client_collection) as string
-    const plaidAccess = new PlaidClient(secret,client_id,env_url,encrypted_user_id,encryption_key,iv_hex)
+    const plaidAccess = new PlaidClient(secret,client_id,env_url,encrypted_user_id,encryption_key,iv_hex, client_collection, account_collection, investment_collection, balance_collection)
 
     //encrypted userID = userCheck.encryptedUserID
     if(method == 'getBalance'){
         try{
             const access_tokens = await dbAccess.getUserTokens(client_collection,encrypted_user_id) //returns an array of decrypted tokens
-            const accounts = await plaidAccess.getBalance(access_tokens) //returns balance info for each token
+            const accounts: GetBalancesResponse[] = await plaidAccess.getBalance(access_tokens) //returns balance info for each token
+            //cache the balances
+            await dbAccess.cacheBalances(balance_collection,accounts,encrypted_user_id)
             res.status(200).json({
                 message: 'Balances called successfully',
                 accounts: accounts

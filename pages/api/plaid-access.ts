@@ -1,5 +1,5 @@
 import {NextApiRequest,NextApiResponse} from "next";
-import {PlaidClient} from "../../lib/plaidClient"
+import {PlaidClient} from "../../lib/api/plaid/plaidClient"
 import clientPromise from '../../lib/api/mongo/mongodb'
 import crypto from 'crypto'
 import { MongoClient } from "../../lib/api/mongo/mongoClient";
@@ -12,6 +12,8 @@ const env_url = process.env.PLAID_ENV_URL!
 //NEED to replace this user ID with one that is encrypted from google prof
 const client_collection = process.env.CLIENT_COLLECTION!
 const account_collection = process.env.ACCOUNT_COLLECTION!
+const investment_collection = process.env.INVESTMENT_COLLECTION!
+const balance_collection = process.env.BALANCE_COLLECTION!
 const client_db = process.env.CLIENT_DB!
 const encryption_key = process.env.ENCRYPTION_KEY!
 const iv_hex = process.env.IV_HEX!
@@ -33,7 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     //update userID to encrypted version
     const userCheck = await dbAccess.userCheck(client_collection)
-    const plaidAccess = new PlaidClient(secret,client_id,env_url,userCheck.encryptedUserID,encryption_key,iv_hex)
+    const plaidAccess = new PlaidClient(secret,client_id,env_url,userCheck.encryptedUserID,encryption_key,iv_hex, client_collection, account_collection, investment_collection, balance_collection)
 
     //encrypted userID = userCheck.encryptedUserID
 
@@ -58,7 +60,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const public_token = req.body.public_token
         try {
 
-            const createdAccessToken = await plaidAccess.getAccessToken(public_token, db, client_collection,account_collection, investment_collection, metadata, userCheck.newUser)
+            const createdAccessToken = await plaidAccess.getAccessToken(public_token, db, metadata, userCheck.newUser)
             //const result = await accessTokenSaved   
             //console.log('returned info in plaid-access for access token',result)
             res.status(200).json({

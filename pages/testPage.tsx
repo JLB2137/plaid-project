@@ -11,11 +11,11 @@ import {motion} from 'framer-motion'
 import DynamicInvestmentGridHeaders from '../components/dynamicInvestmentGridHeaders'
 import AccountBalanceGrid from '../components/accountBalanceGrid'
 import AccountBalanceGridHeaders from '../components/AccountBalanceGridHeaders'
-import balanceDesconstructor from "../lib/api/plaid/balanceDescontructor";
-import securityHoldings from '../lib/api/plaid/securityHoldingsMatch'
+import balanceDesconstructor from "../lib/front-end/plaid/balanceDescontructor";
+import securityHoldings from '../lib/front-end/plaid/securityHoldingsMatch'
 import { useRouter } from "next/router";
 import '../styles/Home.module.css'
-import consolidatedSecurityHoldings from "../lib/api/plaid/consolidatedSecurityHoldings";
+import consolidatedSecurityHoldings from "../lib/front-end/plaid/consolidatedSecurityHoldings";
 import { flexBoxItems, flexBoxScrollBars } from "../styles/constants";
 
 
@@ -114,10 +114,16 @@ export default function TestPage() {
     }else{
 
       const accounts = balanceDesconstructor(balances)
-      console.log('here',[flexBoxItems+flexBoxScrollBars])
 
       return(
-        <div className={flexBoxItems+flexBoxScrollBars} >
+        <motion.div
+        key="balances grid"
+        initial={{opacity: 0, y:50, maxHeight:"30%", overflow:"hidden"}}
+        whileHover={{overflow:"auto", maxHeight: "100%"}}
+        animate={{opacity: 1, y:0}}
+        transition={{duration: .5, ease: "easeInOut"}}
+        className={flexBoxItems+flexBoxScrollBars}
+        >
           <AccountBalanceGridHeaders />
           {
             
@@ -126,7 +132,7 @@ export default function TestPage() {
             )
           
           }
-        </div>
+        </motion.div>
         
       )
 
@@ -167,7 +173,7 @@ export default function TestPage() {
           initial={{opacity: 0, y:50, maxHeight:"30%", overflow:"hidden"}}
           whileHover={{overflow:"auto", maxHeight: "100%"}}
           animate={{opacity: 1, y:0}}
-          transition={{duration: 1, ease: "easeInOut"}}
+          transition={{duration: .5, ease: "easeInOut"}}
           className={flexBoxItems+flexBoxScrollBars}
           >
             <DynamicInvestmentGridHeaders/>
