@@ -1,7 +1,15 @@
 import {motion} from 'framer-motion'
 import {numberFormatting} from '../lib/front-end/numberTextFormatting'
 import {flexBoxScrollBars} from '../styles/constants'
+import { useFinancialsContext } from '../context/FinancialsContext'
 const DynamicInvestmentGrid = ({key, investment}) => {
+
+    const {getPricing} = useFinancialsContext()
+
+    const test = async (ticker) => {
+        await getPricing(ticker,'1y','1d')
+    }
+
     const investmentProperties = "col-span-1 text-sm"
     //need to adjust this for before or afters
     const returnColorScheme = (investmentProperty,comparrisonProperty,textEquation,additionalVariable?,additionalVariablePlacement?) => {
@@ -23,7 +31,7 @@ const DynamicInvestmentGrid = ({key, investment}) => {
         animate={{opacity: 1, y:0}}
         transition={{duration: .5}}
         >
-            <h4 className={"col-span-1 text-xs font-bold overflow-auto " + flexBoxScrollBars}>{investment.ticker_symbol}</h4>
+            <button onClick={()=>test(investment.ticker_symbol)}><h4 className={"col-span-1 text-xs font-bold overflow-auto " + flexBoxScrollBars}>{investment.ticker_symbol}</h4></button>
             <p className="col-span-1 text-xs">{investment.name}</p>
             <p className={investmentProperties}>{numberFormatting(investment.close_price)}</p>
             <p className={investmentProperties}>{numberFormatting(investment.quantity)}</p>

@@ -200,7 +200,7 @@ export class MongoClient {
 
             investments = JSON.parse(investments)
     
-            console.log('investments',investments)
+            //console.log('investments',investments)
         }else{
             investments = null 
         }
@@ -237,16 +237,17 @@ export class MongoClient {
     async getBalanceCache(balance_collection:string, encrypted_user_id: string) {
         //need to parse output from DB for account token and subsequent account IDs
         const userBalances = await this.db.collection(balance_collection).findOne({ user_id: encrypted_user_id })
+        
         let balances
 
-        console.log('user balances',userBalances)
+        //console.log('user balances',userBalances)
 
         if(userBalances){
             balances = decrypt(userBalances!.balances,this.encryption_key, this.ivHex)
 
             balances = JSON.parse(balances)
     
-            console.log('balances cache',balances)
+            //console.log('balances cache',balances)
         }else{
             balances = null 
         }

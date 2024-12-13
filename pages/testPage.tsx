@@ -2,15 +2,14 @@ import React, { useEffect, useState } from "react";
 
 import { useAuth } from "../context/AuthContext";
 import {usePlaidContext} from '../context/PlaidContext'
+import {useFinancialsContext} from '../context/FinancialsContext'
 import { usePlaidLink } from "react-plaid-link";
-import { UserInfo } from '../node_modules/@firebase/auth-types'
-import { PlaidLinkOnSuccess } from "react-plaid-link";
-import { InvestmentHoldingsResponse } from "../types/types";
 import DynamicInvestmentGrid from '../components/dynamicInvestmentGrid'
+import chartComponent from "../components/chartComponent";
 import {motion} from 'framer-motion'
 import DynamicInvestmentGridHeaders from '../components/dynamicInvestmentGridHeaders'
 import AccountBalanceGrid from '../components/accountBalanceGrid'
-import AccountBalanceGridHeaders from '../components/AccountBalanceGridHeaders'
+import AccountBalanceGridHeaders from '../components/accountBalanceGridHeaders'
 import balanceDesconstructor from "../lib/front-end/plaid/balanceDescontructor";
 import securityHoldings from '../lib/front-end/plaid/securityHoldingsMatch'
 import { useRouter } from "next/router";
@@ -19,13 +18,14 @@ import consolidatedSecurityHoldings from "../lib/front-end/plaid/consolidatedSec
 import { flexBoxItems, flexBoxScrollBars } from "../styles/constants";
 
 
-export default function TestPage() {
+export default function Dashboard() {
 
 
 
   const {user,popUpLogin,logout} = useAuth()
 
   const {getInvestments, investments, getBalances, balances,initToken,onSuccess,linkToken} = usePlaidContext()
+  const {stockPricing} = useFinancialsContext()
   const [investmentBools,setInvestmentBools] = useState<{ [key: string]: boolean }>({})
   const router = useRouter()
   //console.log('user',user)
@@ -114,6 +114,7 @@ export default function TestPage() {
     }else{
 
       const accounts = balanceDesconstructor(balances)
+      console.log("accounts before",accounts)
 
       return(
         <motion.div
@@ -126,8 +127,7 @@ export default function TestPage() {
         >
           <AccountBalanceGridHeaders />
           {
-            
-          accounts.map((account)=>
+          accounts.map((account) =>
             <AccountBalanceGrid account={account} />
             )
           
@@ -164,7 +164,9 @@ export default function TestPage() {
         }
         
       }
+      console.log('institution',institutionalHoldings)
       let consolidatedHoldings = consolidatedSecurityHoldings(institutionalHoldings)
+      console.log('consolidated',consolidatedHoldings)
 
 
         return (
@@ -194,10 +196,6 @@ export default function TestPage() {
     },100)
   }
 
-
-
-  
-
   const { open, ready, exit } = usePlaidLink(config);
   
   useEffect(()=>{
@@ -208,8 +206,7 @@ export default function TestPage() {
   },[ready,open])
 
   useEffect(()=>{
-    console.log('balances',balances)
-  },[balances])
+  },[balances,stockPricing])
 
   // Render the button once pubToken is available
   // if (!linkToken) {
@@ -236,9 +233,10 @@ export default function TestPage() {
       <button onClick={logOutRedirect} disabled={!user}>
         Sign Out
       </button>
-      <div className="flex h-screen p-4 gap-x-10">
+      <div className="flex-wrap h-screen w-screen p-4 gap-x-10">
         {investmentGrid()}
         {balanceGrid()}
+        {chartComponent()}
       </div>
     </div>
   );

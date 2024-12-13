@@ -77,6 +77,8 @@ export function PlaidProvider ({children}:{children: ReactNode}) {
     const onSuccess = async (public_token,metadata)=> {
         await clientOnSuccess(public_token,metadata,user)
         setLinkToken(null)
+        getInvestments()
+        getBalances()
     }
 
 
