@@ -1,11 +1,11 @@
-import { useFinancialsContext } from "../context/FinancialsContext"
-import LineChart from "./charting/chartingSetup"
+import { useFinancialsContext } from "../../context/FinancialsContext"
+import LineChart from "./chartingSetup"
 
 export default function chartComponent() { //need to add stock as input here
     const {stockPricing} = useFinancialsContext()
     if(stockPricing){
       return (
-        <div>
+        <div className="h-1/2 w-screen">
           <LineChart stockPricing={stockPricing} />
         </div>)
     }else{

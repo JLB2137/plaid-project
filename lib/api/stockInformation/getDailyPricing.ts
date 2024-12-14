@@ -7,7 +7,7 @@ export async function getDailyPricing(ticker:string,timePeriod:string,interval:s
           },
           body: JSON.stringify({
             ticker: ticker,
-            range: timePeriod, //should be replaced w 1y etc
+            range: timePeriod, //should be replaced w 1y
             interval: interval //should be replaced w 1d etc
           })
         })

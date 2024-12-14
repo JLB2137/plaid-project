@@ -1,5 +1,5 @@
 import {motion} from 'framer-motion'
-import { toTitleCase, numberFormatting } from '../lib/front-end/numberTextFormatting'
+import { toTitleCase, numberFormatting } from '../../lib/front-end/numberTextFormatting'
 const AccountBalanceGrid = ({account}) => {
     const headerProperties = "col-span-1 text-sm"
     const capitalCasingAccounts = {'cd':'1','hsa':'1','ira':'1'}

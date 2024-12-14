@@ -3,7 +3,7 @@ import { TSLAStockMock } from "./mock/stockMock";
 
 
 
-const rapidAPIKey = 'fa5f5ef286mshd0f92adb8a3f5bcp11574bjsn05abe76099dd'
+const rapidAPIKey = process.env.RAPIDAPIKEY
 // process.env.STOCK_API!
 
 
@@ -42,8 +42,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try{
         //disabled momentarily in favor of mockData
-        // const historicalData = await createLinkToken(ticker,timePeriod,timeInterval)
+        //const historicalData = await createLinkToken(ticker,timePeriod,timeInterval)
         const historicalData = TSLAStockMock
+        if(historicalData.message){
+            console.log('history',historicalData.message)
+        }
+        
         res.status(200).json(
         {
             message: 'Successfully returned symbol information',

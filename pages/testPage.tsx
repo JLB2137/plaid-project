@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 
 import { useAuth } from "../context/AuthContext";
 import {usePlaidContext} from '../context/PlaidContext'
 import {useFinancialsContext} from '../context/FinancialsContext'
 import { usePlaidLink } from "react-plaid-link";
 import DynamicInvestmentGrid from '../components/dynamicInvestmentGrid'
-import chartComponent from "../components/chartComponent";
+import chartComponent from "../components/charting/chartComponent";
 import {motion} from 'framer-motion'
 import DynamicInvestmentGridHeaders from '../components/dynamicInvestmentGridHeaders'
-import AccountBalanceGrid from '../components/accountBalanceGrid'
-import AccountBalanceGridHeaders from '../components/accountBalanceGridHeaders'
+import AccountBalanceGrid from '../components/userAccounts/accountBalanceGrid'
+import AccountBalanceGridHeaders from "../components/userAccounts/accountBalanceGridHeaders";
 import balanceDesconstructor from "../lib/front-end/plaid/balanceDescontructor";
 import securityHoldings from '../lib/front-end/plaid/securityHoldingsMatch'
 import { useRouter } from "next/router";
@@ -25,8 +25,10 @@ export default function Dashboard() {
   const {user,popUpLogin,logout} = useAuth()
 
   const {getInvestments, investments, getBalances, balances,initToken,onSuccess,linkToken} = usePlaidContext()
-  const {stockPricing} = useFinancialsContext()
+  const {getPricing, stockPricing} = useFinancialsContext()
   const [investmentBools,setInvestmentBools] = useState<{ [key: string]: boolean }>({})
+  const [ticker, setTicker] = useState<undefined | string>()
+  const [tickerInput,setTickerInput] = useState<string>('')
   const router = useRouter()
   //console.log('user',user)
 
@@ -189,6 +191,22 @@ export default function Dashboard() {
   }
   }
 
+  const handleInput = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = (event.target.value)
+    setTicker(value)
+
+  }
+
+  const submit = (event: React.KeyboardEvent<HTMLInputElement>)=> {
+    if(event.key == 'Enter'){
+      event.preventDefault()
+      getPricing(ticker!,'1y','1d')
+      setTicker('')      
+    }
+  }
+
+
+
   const logOutRedirect = async () => {
     await logout()
     setTimeout(()=>{
@@ -197,8 +215,10 @@ export default function Dashboard() {
   }
 
   const { open, ready, exit } = usePlaidLink(config);
+
   
   useEffect(()=>{
+
     if(ready){
       open()
     }
@@ -233,7 +253,11 @@ export default function Dashboard() {
       <button onClick={logOutRedirect} disabled={!user}>
         Sign Out
       </button>
-      <div className="flex-wrap h-screen w-screen p-4 gap-x-10">
+      <button onClick={logOutRedirect} disabled={!user}>
+        Sign Out
+      </button>
+      <input value={ticker} onChange={(event)=>handleInput(event)} onKeyDown={(event)=>submit(event)} />
+      <div className="flex flex-wrap h-screen w-screen p-4 gap-x-10">
         {investmentGrid()}
         {balanceGrid()}
         {chartComponent()}
