@@ -25,8 +25,9 @@ export default function Dashboard() {
   const {user,popUpLogin,logout} = useAuth()
 
   const {getInvestments, investments, getBalances, balances,initToken,onSuccess,linkToken} = usePlaidContext()
-  const {getPricing, stockPricing, ticker, setTicker} = useFinancialsContext()
+  const {getPricing, stockPricing} = useFinancialsContext()
   const [investmentBools,setInvestmentBools] = useState<{ [key: string]: boolean }>({})
+  const [ticker, setTicker] = useState<undefined | string>()
   const [tickerInput,setTickerInput] = useState<string>('')
   const router = useRouter()
   //console.log('user',user)
@@ -173,11 +174,12 @@ export default function Dashboard() {
         return (
           <motion.div
           key="investment grid"
-          initial={{opacity: 0, y:50}}
+          initial={{opacity: 0, y:50, maxHeight:"30%"}}
           animate={{opacity: 1, y:0}}
           transition={{duration: .5, ease: "easeInOut"}}
-          className={flexBoxItems+ 'mt-14'}
+          className={flexBoxItems+flexBoxScrollBars}
           >
+            <DynamicInvestmentGridHeaders/>
             {Object.entries(consolidatedHoldings).map(([key, value]) => (
                 <DynamicInvestmentGrid key={key} investment={value}/>
               ))
@@ -190,16 +192,15 @@ export default function Dashboard() {
 
   const handleInput = (event: ChangeEvent<HTMLInputElement>) => {
     const value = (event.target.value)
-    setTickerInput(value)
+    setTicker(value)
 
   }
 
   const submit = (event: React.KeyboardEvent<HTMLInputElement>)=> {
     if(event.key == 'Enter'){
       event.preventDefault()
-      getPricing(tickerInput!,'1y','1d')
-      setTickerInput('')
-
+      getPricing(ticker!,'1y','1d')
+      setTicker('')      
     }
   }
 
@@ -254,12 +255,11 @@ export default function Dashboard() {
       <button onClick={logOutRedirect} disabled={!user}>
         Sign Out
       </button>
-      <input value={tickerInput} onChange={(event)=>handleInput(event)} onKeyDown={(event)=>submit(event)} />
-      <div className="flex flex-wrap h-max justify-around px-2 py-6 gap-x-1 gap-y-10">
-        {chartComponent()}
+      <input value={ticker} onChange={(event)=>handleInput(event)} onKeyDown={(event)=>submit(event)} />
+      <div className="flex flex-wrap h-screen w-screen p-4 gap-x-10">
         {investmentGrid()}
         {balanceGrid()}
-
+        {chartComponent()}
       </div>
     </div>
   );

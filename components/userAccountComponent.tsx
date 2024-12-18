@@ -17,7 +17,7 @@ const UserAccountComponent = ({blinkText, welcomeState, userPhoto, popUpLogin, w
             <div className="flex space-x-4 pt-5 justify-center">
                 <motion.button
                 whileHover={{ scale: 1.1 }}
-                className="px-6 py-3 w-15 text-center bg-green-500 text-white rounded shadow hover:bg-green-600"
+                className="px-6 py-3 w-15 text-center bg-green text-white rounded shadow hover:bg-green"
                 onClick={popUpLogin}
                 >
                     Sign In
@@ -35,14 +35,14 @@ const UserAccountComponent = ({blinkText, welcomeState, userPhoto, popUpLogin, w
             <div className="flex space-x-4 pt-5 justify-center">
                 <motion.button
                 whileHover={{ scale: 1.1 }}
-                className="px-6 py-3 w-15 text-center bg-green-500 text-white rounded shadow hover:bg-green-600"
+                className="px-6 py-3 w-15 text-center bg-green text-white rounded shadow hover:bg-green"
                 onClick={welcomeMessage}
                 >
                     Proceed to Dashboard
                 </motion.button>
                 <motion.button
                 whileHover={{ scale: 1.1 }}
-                className="px-6 py-3 w-15 text-center bg-red-500 text-white rounded shadow hover:bg-red-600"
+                className="px-6 py-3 w-15 text-center bg-red text-white rounded shadow hover:bg-red"
                 onClick={logout}
                 >
                     Sign Out

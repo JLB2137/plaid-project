@@ -1,7 +1,7 @@
 import {motion} from 'framer-motion'
-import {numberFormatting} from '../lib/front-end/numberTextFormatting'
-import {flexBoxScrollBars} from '../styles/constants'
-import { useFinancialsContext } from '../context/FinancialsContext'
+import {numberFormatting} from '../../lib/front-end/numberTextFormatting'
+import {flexBoxScrollBars} from '../../styles/constants'
+import { useFinancialsContext } from '../../context/FinancialsContext'
 const DynamicInvestmentGrid = ({key, investment}) => {
 
     const {getPricing} = useFinancialsContext()

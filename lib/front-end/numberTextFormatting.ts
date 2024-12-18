@@ -1,4 +1,7 @@
 export function numberFormatting(number:number) {
+    if(!number){
+        return ''
+    }
     number = Math.round(number*100)/100
     const formatedNumber = number.toLocaleString('en-us')
     return formatedNumber

@@ -8,6 +8,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@types/firebase": "^2.4.32",
     "@types/plaid-link": "^2.0.15",
     "chart.js": "^4.4.7",
