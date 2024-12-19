@@ -40,7 +40,7 @@ export function PlaidProvider ({children}:{children: ReactNode}) {
                     setInvestments(investments)
                 }
                 const balances = await getBalanceCache(user)
-                console.log('balances retr',balances.accounts)
+                //console.log('balances retr',balances.accounts)
                 if(balances.accounts){
                     setBalances(balances.accounts)
                 }

@@ -2,46 +2,17 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { TSLAStockMock } from "./mock/stockMock";
 import {RequestQueue} from '../../lib/enqueue'
 import { ChartData, PricingErrorResponse } from "../../types/types";
+import { pricing, cashflow, income, balance} from "../../lib/api/stockInformation/FMP-API-Routes";
 
 // Environment variables
-const rapidAPIKey = process.env.RAPIDAPIKEY || "";
+const APIKEY = process.env.FMP_API_KEY || "";
 
-// Utility to introduce delay
+//need to return to type all responses
 
 const requestQueue = new RequestQueue(500); // Delay of 2 seconds between requests
 
 // Pricing request
-const pricingRequest = async (ticker: string, timePeriod: string, timeInterval: string) => {
-    //console.log('fet',`https://yahoo-finance166.p.rapidapi.com/api/stock/get-chart?region=US&range=${timePeriod}&symbol=${ticker}&interval=${timeInterval}`)
-    const response = await fetch(
-    `https://yahoo-finance166.p.rapidapi.com/api/stock/get-chart?region=US&range=${timePeriod}&symbol=${ticker}&interval=${timeInterval}`,
-    {
-      method: "GET",
-      headers: {
-        "x-rapidapi-key": rapidAPIKey,
-        "x-rapidapi-host": "yahoo-finance166.p.rapidapi.com",
-      },
-    }
-  );
 
-  return response.json();
-};
-
-// Financials request
-const financialsRequest = async (ticker: string) => {
-  const response = await fetch(
-    `https://yahoo-finance166.p.rapidapi.com/api/stock/get-financial-data?region=US&symbol=${ticker}`,
-    {
-      method: "GET",
-      headers: {
-        "x-rapidapi-key": rapidAPIKey,
-        "x-rapidapi-host": "yahoo-finance166.p.rapidapi.com",
-      },
-    }
-  );
-
-  return response.json();
-};
 
 // API Handler
 export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
@@ -49,57 +20,97 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const ticker: string = req.body.ticker;
 
   if (method === "pricing") {
-    const timePeriod: string = req.body.range;
-    const timeInterval: string = req.body.interval;
+    const startDate: string = req.body.startDate;
+    const endDate: string = req.body.endDate
 
     requestQueue.enqueue(async () => {
       try {
     
-        const historicalData: ChartData | PricingErrorResponse = await pricingRequest(ticker, timePeriod, timeInterval);
-        //const historicalData = TSLAStockMock
-        console.log('ticker',ticker,'historicalData',historicalData)
-        if('chart' in historicalData){
-            res.status(200).json({
-                message: "Successfully returned symbol information",
-                apiResponse: historicalData.chart.result,
-              });
-        }else{
-        res.status(500).json({
-            message: "Error retrieving symbol pricing information",
-            error: historicalData.message,
-            }); 
-        }
+        //const request = await pricing(ticker, startDate, endDate, APIKEY);
+        const request = TSLAStockMock
+        //console.log('ticker',ticker,'historicalData',request)
+        console.log('requestING',request)
+        res.status(200).json({
+          message: 'Success calling FMP Pricing API',
+          response: request
+        })
 
       } catch (error) {
-        //console.error("Pricing Error:", error);
+        console.error("Pricing Error:", error);
         res.status(500).json({
-          message: "Could not reach RapidAPI Route",
+          message: "Could not reach FMP Pricing API",
           error: error,
         });
       }
     });
-  } else if (method === "financials") {
+  } else if (method === "income") {
     requestQueue.enqueue(async () => {
-      try {
-        const financialData = await financialsRequest(ticker);
-
-        if (!financialData.chart?.result) {
-          throw new Error("Error retrieving financial data");
+  
+      requestQueue.enqueue(async () => {
+        try {
+      
+          const request = await income(ticker, APIKEY);
+          //const historicalData = TSLAStockMock
+          //console.log('ticker',ticker,'historicalData',historicalData)
+          res.status(200).json({
+            message: 'Success calling FMP Income API',
+            response: request
+          })
+  
+        } catch (error) {
+          //console.error("Pricing Error:", error);
+          res.status(500).json({
+            message: "Could not reach FMP Income API",
+            error: error,
+          });
         }
-
-        res.status(200).json({
-          message: "Successfully returned financial information",
-          apiResponse: financialData.chart.result,
-        });
-      } catch (error) {
-        console.error("Financials Error:", error);
-        res.status(500).json({
-          message: "Error retrieving symbol financial information",
-          error: error.message || error,
-        });
-      }
-    });
-  } else {
-    res.status(400).json({ message: "Invalid method provided" });
+      });
+    })
+  } else if (method === "balance") {
+    requestQueue.enqueue(async () => {
+  
+      requestQueue.enqueue(async () => {
+        try {
+      
+          const request = await balance(ticker, APIKEY);
+          //const historicalData = TSLAStockMock
+          //console.log('ticker',ticker,'historicalData',historicalData)
+          res.status(200).json({
+            message: 'Success calling FMP Balance API',
+            response: request
+          })
+  
+        } catch (error) {
+          //console.error("Pricing Error:", error);
+          res.status(500).json({
+            message: "Could not reach FMP Balance API",
+            error: error,
+          });
+        }
+      });
+    })
+  }  else if (method === "cashflow") {
+    requestQueue.enqueue(async () => {
+  
+      requestQueue.enqueue(async () => {
+        try {
+      
+          const request = await cashflow(ticker, APIKEY);
+          //const historicalData = TSLAStockMock
+          //console.log('ticker',ticker,'historicalData',historicalData)
+          res.status(200).json({
+            message: 'Success calling FMP Cashflow API',
+            response: request
+          })
+  
+        } catch (error) {
+          //console.error("Pricing Error:", error);
+          res.status(500).json({
+            message: "Could not reach FMP Cashflow API",
+            error: error,
+          });
+        }
+      });
+    })
   }
 }

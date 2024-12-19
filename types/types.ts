@@ -184,81 +184,170 @@ export interface BalanceItem {
   // Other item fields as needed
 }
 
-export interface ChartData {
-  chart: {
-    result: {
-      meta: {
-        currency: string;
-        symbol: string;
-        exchangeName: string;
-        fullExchangeName: string;
-        instrumentType: string;
-        firstTradeDate: number;
-        regularMarketTime: number;
-        hasPrePostMarketData: boolean;
-        gmtoffset: number;
-        timezone: string;
-        exchangeTimezoneName: string;
-        regularMarketPrice: number;
-        fiftyTwoWeekHigh: number;
-        fiftyTwoWeekLow: number;
-        regularMarketDayHigh: number;
-        regularMarketDayLow: number;
-        regularMarketVolume: number;
-        longName: string;
-        shortName: string;
-        chartPreviousClose: number;
-        previousClose: number;
-        scale: number;
-        priceHint: number;
-        currentTradingPeriod: {
-          pre: TradingPeriod;
-          regular: TradingPeriod;
-          post: TradingPeriod;
-        };
-        tradingPeriods: {
-          pre: TradingPeriod[][];
-          regular: TradingPeriod[][];
-          post: TradingPeriod[][];
-        };
-        dataGranularity: string;
-        range: string;
-        validRanges: string[];
-      };
-      timestamp: number[];
-      indicators: {
-        quote: {
-          low: number[];
-          close: number[];
-          open: number[];
-          high: number[];
-          volume: number[];
-        }[];
-      };
-    }[];
-    error: null | string;
-  };
-}
 
-export interface TradingPeriod {
-  timezone: string;
-  start: number;
-  end: number;
-  gmtoffset: number;
-}
 
-export interface PricingErrorResponse {
-  error: boolean;
-  message: {
-    chart: {
-      result: null;
-      error: {
-        code: string;
-        description: string;
-      };
-    };
-  };
-}
+export interface HistoricalIncome {
+  date: string;
+  symbol: string;
+  reportedCurrency: string;
+  cik: string;
+  fillingDate: string;
+  acceptedDate: string;
+  calendarYear: string;
+  period: string;
+  revenue: number;
+  costOfRevenue: number;
+  grossProfit: number;
+  grossProfitRatio: number;
+  researchAndDevelopmentExpenses: number;
+  generalAndAdministrativeExpenses: number;
+  sellingAndMarketingExpenses: number;
+  sellingGeneralAndAdministrativeExpenses: number;
+  otherExpenses: number;
+  operatingExpenses: number;
+  costAndExpenses: number;
+  interestIncome: number;
+  interestExpense: number;
+  depreciationAndAmortization: number;
+  ebitda: number;
+  ebitdaratio: number;
+  operatingIncome: number;
+  operatingIncomeRatio: number;
+  totalOtherIncomeExpensesNet: number;
+  incomeBeforeTax: number;
+  incomeBeforeTaxRatio: number;
+  incomeTaxExpense: number;
+  netIncome: number;
+  netIncomeRatio: number;
+  eps: number;
+  epsdiluted: number;
+  weightedAverageShsOut: number;
+  weightedAverageShsOutDil: number;
+  link: string;
+  finalLink: string;
+};
+
+export interface HistoricalPrice  {
+  date: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  adjClose: number;
+  volume: number;
+  unadjustedVolume: number;
+  change: number;
+  changePercent: number;
+  vwap: number;
+  label: string;
+  changeOverTime: number;
+};
+
+export interface PricingHistoricals {
+  symbol: string;
+  historical: HistoricalPrice[];
+};
+
+export interface HistoricalBalance {
+  date: string;
+  symbol: string;
+  reportedCurrency: string;
+  cik: string;
+  fillingDate: string;
+  acceptedDate: string;
+  calendarYear: string;
+  period: string;
+  cashAndCashEquivalents: number;
+  shortTermInvestments: number;
+  cashAndShortTermInvestments: number;
+  netReceivables: number;
+  inventory: number;
+  otherCurrentAssets: number;
+  totalCurrentAssets: number;
+  propertyPlantEquipmentNet: number;
+  goodwill: number;
+  intangibleAssets: number;
+  goodwillAndIntangibleAssets: number;
+  longTermInvestments: number;
+  taxAssets: number;
+  otherNonCurrentAssets: number;
+  totalNonCurrentAssets: number;
+  otherAssets: number;
+  totalAssets: number;
+  accountPayables: number;
+  shortTermDebt: number;
+  taxPayables: number;
+  deferredRevenue: number;
+  otherCurrentLiabilities: number;
+  totalCurrentLiabilities: number;
+  longTermDebt: number;
+  deferredRevenueNonCurrent: number;
+  deferredTaxLiabilitiesNonCurrent: number;
+  otherNonCurrentLiabilities: number;
+  totalNonCurrentLiabilities: number;
+  otherLiabilities: number;
+  capitalLeaseObligations: number;
+  totalLiabilities: number;
+  preferredStock: number;
+  commonStock: number;
+  retainedEarnings: number;
+  accumulatedOtherComprehensiveIncomeLoss: number;
+  othertotalStockholdersEquity: number;
+  totalStockholdersEquity: number;
+  totalEquity: number;
+  totalLiabilitiesAndStockholdersEquity: number;
+  minorityInterest: number;
+  totalLiabilitiesAndTotalEquity: number;
+  totalInvestments: number;
+  totalDebt: number;
+  netDebt: number;
+  link: string;
+  finalLink: string;
+};
+
+export interface HistoricalCashFlow {
+  date: string;
+  symbol: string;
+  reportedCurrency: string;
+  cik: string;
+  fillingDate: string;
+  acceptedDate: string;
+  calendarYear: string;
+  period: string;
+  netIncome: number;
+  depreciationAndAmortization: number;
+  deferredIncomeTax: number;
+  stockBasedCompensation: number;
+  changeInWorkingCapital: number;
+  accountsReceivables: number;
+  inventory: number;
+  accountsPayables: number;
+  otherWorkingCapital: number;
+  otherNonCashItems: number;
+  netCashProvidedByOperatingActivities: number;
+  investmentsInPropertyPlantAndEquipment: number;
+  acquisitionsNet: number;
+  purchasesOfInvestments: number;
+  salesMaturitiesOfInvestments: number;
+  otherInvestingActivites: number;
+  netCashUsedForInvestingActivites: number;
+  debtRepayment: number;
+  commonStockIssued: number;
+  commonStockRepurchased: number;
+  dividendsPaid: number;
+  otherFinancingActivites: number;
+  netCashUsedProvidedByFinancingActivities: number;
+  effectOfForexChangesOnCash: number;
+  netChangeInCash: number;
+  cashAtEndOfPeriod: number;
+  cashAtBeginningOfPeriod: number;
+  operatingCashFlow: number;
+  capitalExpenditure: number;
+  freeCashFlow: number;
+  link: string;
+  finalLink: string;
+};
+
 
 
 

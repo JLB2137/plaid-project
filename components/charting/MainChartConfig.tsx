@@ -32,12 +32,13 @@ interface LineChartProps {
 }
 
 
-const LineChart: FC<LineChartProps> = ({ pricing } ) => {
+const LineChart = ({ pricing } ) => {
   const chartRef = useRef(null);
+
 
   // Accessing context
   const { setSelectedPrice, setInitialRangePrice } = useFinancialsContext();
-  if(!pricing.apiResponse){
+  if(!pricing){
     return <div></div>
   }
 
@@ -45,15 +46,10 @@ const LineChart: FC<LineChartProps> = ({ pricing } ) => {
   const { dates, prices } = useMemo(() => {
     const dates = [];
     const prices = [];
-    const symbolInformation = pricing.apiResponse;
 
-    for (let i = 0; i < symbolInformation.length; i++) {
-      for (let j = 0; j < symbolInformation[i].timestamp.length; j++) {
-        dates.push(
-          new Date(symbolInformation[i].timestamp[j] * 1000).toUTCString().slice(0, 17)
-        );
-        prices.push(symbolInformation[i].indicators.adjclose[0].adjclose[j]);
-      }
+    for (let i = 0; i < pricing.length; i++) {
+        dates.push(pricing[i].date);
+        prices.push(pricing[i].close);
     }
     return { dates, prices };
   }, [pricing]);

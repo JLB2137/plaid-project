@@ -115,7 +115,7 @@ export default function Dashboard() {
     }else{
 
       const accounts = balanceDesconstructor(balances)
-      console.log("accounts before",accounts)
+      //console.log("accounts before",accounts)
 
       return(
         <motion.div
@@ -230,7 +230,7 @@ export default function Dashboard() {
   // if (!linkToken) {
   //   return <div>Loading...</div>; // Show a loading state while the token is being fetched
   // }
-
+//need to return         {investmentGrid()}
   return (
     <div>
       <button onClick={initToken} disabled={!user}>
@@ -257,7 +257,6 @@ export default function Dashboard() {
       <input value={tickerInput} onChange={(event)=>handleInput(event)} onKeyDown={(event)=>submit(event)} />
       <div className="flex flex-wrap h-max justify-around px-2 py-6 gap-x-1 gap-y-10">
         <MainChart/>
-        {investmentGrid()}
         {balanceGrid()}
 
       </div>

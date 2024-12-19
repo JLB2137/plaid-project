@@ -5,7 +5,7 @@ export default function balanceDesconstructor(balances) {
 
     let accounts = []
 
-    console.log('balance desc',balances)
+    //console.log('balance desc',balances)
 
     for(let i=0;i<balances.length;i++){
         for(let j=0;j<balances[i].accounts.length;j++){

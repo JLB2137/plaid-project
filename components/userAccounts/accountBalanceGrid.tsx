@@ -4,7 +4,7 @@ const AccountBalanceGrid = ({account}) => {
     const headerProperties = "col-span-1 text-sm"
     const capitalCasingAccounts = {'cd':'1','hsa':'1','ira':'1'}
 
-    console.log('account ehre', account)
+    //console.log('account ehre', account)
     return(
         <motion.div
         key='headers'
