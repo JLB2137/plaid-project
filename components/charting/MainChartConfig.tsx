@@ -9,9 +9,10 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import React, { useRef, useMemo, useEffect } from 'react';
+import React, { useRef, useMemo, useEffect, FC } from 'react';
 import { numberFormatting } from '../../lib/front-end/numberTextFormatting';
 import { useFinancialsContext } from '../../context/FinancialsContext';
+import { ChartData } from '../../types/types';
 
 // Register required Chart.js components
 ChartJS.register(
@@ -24,7 +25,14 @@ ChartJS.register(
   Legend
 );
 
-const LineChart = ({ pricing }) => {
+interface LineChartProps {
+  pricing: {
+    apiResponse: ChartData["chart"]["result"] | ChartData["chart"]["error"];
+  };
+}
+
+
+const LineChart: FC<LineChartProps> = ({ pricing } ) => {
   const chartRef = useRef(null);
 
   // Accessing context
@@ -61,7 +69,7 @@ const LineChart = ({ pricing }) => {
   // Memoize line color
   const lineColoring = useMemo(
     () =>
-      prices[prices.length - 2] >= prices[0]
+      prices[prices.length - 1] >= prices[0]
         ? 'rgb(0, 200, 7)' // Green if price increases
         : 'rgb(255, 81, 1)', // Red if price decreases
     [prices]

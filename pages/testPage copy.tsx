@@ -5,7 +5,7 @@ import {usePlaidContext} from '../context/PlaidContext'
 import {useFinancialsContext} from '../context/FinancialsContext'
 import { usePlaidLink } from "react-plaid-link";
 import DynamicInvestmentGrid from '../components/investmentGrid/dynamicInvestmentGrid'
-import chartComponent from "../components/charting/chartComponent";
+import chartComponent from "../components/charting/MainChart";
 import {motion} from 'framer-motion'
 import DynamicInvestmentGridHeaders from '../components/investmentGrid/dynamicInvestmentGridHeaders'
 import AccountBalanceGrid from '../components/userAccounts/accountBalanceGrid'

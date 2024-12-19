@@ -1,42 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { TSLAStockMock } from "./mock/stockMock";
+import {RequestQueue} from '../../lib/enqueue'
+import { ChartData, PricingErrorResponse } from "../../types/types";
 
 // Environment variables
 const rapidAPIKey = process.env.RAPIDAPIKEY || "";
 
 // Utility to introduce delay
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-// Request Queue
-class RequestQueue {
-  private queue: (() => Promise<void>)[] = [];
-  private delay: number;
-  private processing = false;
-
-  constructor(delay: number) {
-    this.delay = delay; // Delay between requests in ms
-  }
-
-  enqueue(request: () => Promise<void>) {
-    this.queue.push(request);
-    this.processQueue();
-  }
-
-  private async processQueue() {
-    if (this.processing) return;
-    this.processing = true;
-
-    while (this.queue.length > 0) {
-      const nextRequest = this.queue.shift();
-      if (nextRequest) {
-        await nextRequest();
-        await delay(this.delay);
-      }
-    }
-
-    this.processing = false;
-  }
-}
 
 const requestQueue = new RequestQueue(500); // Delay of 2 seconds between requests
 
@@ -85,10 +55,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     requestQueue.enqueue(async () => {
       try {
     
-        //const historicalData = await pricingRequest(ticker, timePeriod, timeInterval);
-        const historicalData = TSLAStockMock
-        //console.log('ticker',ticker,'historicalData',historicalData.message)
-        if(!historicalData.message){
+        const historicalData: ChartData | PricingErrorResponse = await pricingRequest(ticker, timePeriod, timeInterval);
+        //const historicalData = TSLAStockMock
+        console.log('ticker',ticker,'historicalData',historicalData)
+        if('chart' in historicalData){
             res.status(200).json({
                 message: "Successfully returned symbol information",
                 apiResponse: historicalData.chart.result,
@@ -101,9 +71,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
       } catch (error) {
-        console.error("Pricing Error:", error);
+        //console.error("Pricing Error:", error);
         res.status(500).json({
-          message: "Error retrieving symbol pricing information",
+          message: "Could not reach RapidAPI Route",
           error: error,
         });
       }

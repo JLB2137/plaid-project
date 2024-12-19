@@ -2,32 +2,41 @@ import { createContext, ReactNode, useContext, useEffect, useState } from 'react
 import { getDailyPricingClient, getCompanyFinancialsClient } from '../lib/api/stockInformation/getDailyPricing';
 import { fetchHistoricalEarnings } from '../lib/api/stockInformation/SECHistoricals';
 import { CIKData } from '../constants/CIK';
+import { ChartData } from '../types/types';
 
 interface FinancialInformationContextProps {
-    getPricing: (ticker:string,timePeriod:string,timeInterval:string) => Promise<void>;
-    stockPricing: any
-    setStockPricing: any
+    getPricing: (ticker:string,timePeriod:string,timeInterval:string) => Promise<void>
+    stockPricing: ResponseType | undefined;
+    setStockPricing: React.Dispatch<React.SetStateAction<ResponseType | undefined>>
     ticker: string | undefined
-    setTicker:any
+    setTicker: React.Dispatch<React.SetStateAction<string | undefined>>
     companyName: string | undefined
-    setCompanyName:any
+    setCompanyName: React.Dispatch<React.SetStateAction<string | undefined>>
     selectedPrice: number | undefined
-    setSelectedPrice:any
+    setSelectedPrice: React.Dispatch<React.SetStateAction<number | undefined>>
     initialRangePrice: number | undefined
-    setInitialRangePrice:any
-    stockFinancials: number | undefined
-    setStockFinancials:any
+    setInitialRangePrice: React.Dispatch<React.SetStateAction<number | undefined>>
+    stockFinancials: number | undefined //will need to be updated after route built
+    setStockFinancials: React.Dispatch<React.SetStateAction<string | undefined>>
 }
+
+type ResponseType = {
+    message: string,
+    apiResponse?: ChartData["chart"]["result"],
+    error?: ChartData["chart"]["error"],
+}
+
+type PricingResponse<ResponseType> = Promise<ResponseType>;
 const FinancialInformationContext = createContext<FinancialInformationContextProps | null >(null);
 
 export function FinancialInformationProvider ({children}:{children: ReactNode}) {
     //should use session storage as I don't want this to be saved when the browser is shutdown
-    const [stockPricing, setStockPricing] = useState(null) //needs typing
-    const [stockFinancials, setStockFinancials] = useState(null) //needs typing
-    const [ticker, setTicker] = useState<undefined | string>()
-    const [companyName, setCompanyName] = useState<undefined | string>()
-    const [selectedPrice, setSelectedPrice] = useState<undefined | string>()
-    const [initialRangePrice, setInitialRangePrice] = useState<undefined | string>()
+    const [stockFinancials, setStockFinancials] = useState(null)
+    const [ticker, setTicker] = useState<string | undefined>(undefined)
+    const [companyName, setCompanyName] = useState<string | undefined>(undefined)
+    const [stockPricing, setStockPricing] = useState<ResponseType | undefined>(undefined) 
+    const [selectedPrice, setSelectedPrice] = useState<number | undefined>(undefined)
+    const [initialRangePrice, setInitialRangePrice] = useState<number | undefined>(undefined)
     //should add balances and such to this
 
 
@@ -40,7 +49,7 @@ export function FinancialInformationProvider ({children}:{children: ReactNode}) 
     //this needs a failsafe for if the stock doesn't exist etc despite the internal api call working
     const getPricing = async (ticker:string,timePeriod:string,timeInterval:string)=> {
 
-        const pricingResponse = await getDailyPricingClient(ticker,timePeriod,timeInterval)
+        const pricingResponse: ResponseType = await getDailyPricingClient(ticker,timePeriod,timeInterval)
         //need conditional
         //console.log('resposnme fpr mna',pricingResponse)
         if(pricingResponse.apiResponse){
@@ -83,7 +92,7 @@ export function FinancialInformationProvider ({children}:{children: ReactNode}) 
 export function useFinancialsContext(){
     const context = useContext(FinancialInformationContext)
     if (context==null){
-        throw new Error("context is missing")
+        throw new Error("Financial Context Error")
     }
 
     return context as FinancialInformationContextProps

@@ -11,18 +11,20 @@ import React, { useRef, useMemo } from 'react';
 // Register required Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement);
 
+type Dates = string[]
+type Prices = number[]
+
 const LineChart = ({ pricing }) => {
   
-  const chartRef = useRef(null);
-
   if (!pricing||!pricing.apiResponse) {
-    return <div></div>;
+    return <div>Charting for this Asset is Unavailable</div>;
   }
 
-  // Memoize extracted dates and prices
-  const { dates, prices } = useMemo(() => {
-    const dates = [];
-    const prices = [];
+  const chartRef = useRef(null);
+
+  const { dates , prices } = useMemo(() => {
+    const dates: Dates = [];
+    const prices: Prices = [];
     const symbolInformation = pricing.apiResponse;
 
     if (!symbolInformation) {
@@ -32,7 +34,7 @@ const LineChart = ({ pricing }) => {
     for (let i = 0; i < symbolInformation.length; i++) {
       for (let j = 0; j < symbolInformation[i].timestamp.length; j++) {
         dates.push(
-          new Date(symbolInformation[i].timestamp[j] * 1000).toUTCString()
+          new Date(symbolInformation[i].timestamp[j])
         );
         prices.push(symbolInformation[i].indicators.adjclose[0].adjclose[j]);
       }
@@ -45,7 +47,7 @@ const LineChart = ({ pricing }) => {
   // Memoize line color
   const lineColor = useMemo(
     () =>
-      prices[0] < prices[prices.length - 2]
+      prices[0] < prices[prices.length - 1]
         ? 'rgba(0, 128, 0, 0.7)' // Green if price increases
         : 'rgba(255, 0, 0, 0.7)', // Red if price decreases or stays the same
     [prices]

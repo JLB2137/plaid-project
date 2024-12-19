@@ -3,8 +3,8 @@ import {numberFormatting} from '../../lib/front-end/numberTextFormatting'
 import {flexBoxScrollBars} from '../../styles/constants'
 import { useFinancialsContext } from '../../context/FinancialsContext'
 import { Background } from 'victory'
-import IndividualChartComponent from '../charting/individualChartComponent'
-import chartComponent from '../charting/chartComponent'
+import AssetChart from '../charting/investmentGrid/AssetChart'
+import chartComponent from '../charting/MainChart'
 const DynamicInvestmentGrid = ({key, investment}) => {
 
     const {getPricing} = useFinancialsContext()
@@ -39,7 +39,7 @@ const DynamicInvestmentGrid = ({key, investment}) => {
         onClick={()=>onClickHandler(investment.ticker_symbol)}
         >
                 <h4 className={"col-span-1 col-start-1 text-md font-bold overflow-auto " + flexBoxScrollBars}>{investment.ticker_symbol}</h4>
-                <IndividualChartComponent ticker={investment.ticker_symbol} className="text-center justify-self-center"/>
+                <AssetChart ticker={investment.ticker_symbol} className="text-center justify-self-center"/>
                 <div className='col-span-1 col-start-3 grid-col-3'>
                     <p>${investment.close_price}</p>
                     <p className = {returnColorScheme(unrealizedGainPer,0,unrealizedGainPer) + 'text-lg'}>{unrealizedGainPer}%</p>                   

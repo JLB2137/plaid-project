@@ -5,7 +5,7 @@ import {usePlaidContext} from '../context/PlaidContext'
 import {useFinancialsContext} from '../context/FinancialsContext'
 import { usePlaidLink } from "react-plaid-link";
 import DynamicInvestmentGrid from '../components/investmentGrid/dynamicInvestmentGrid'
-import chartComponent from "../components/charting/chartComponent";
+import MainChart from "../components/charting/MainChart";
 import {motion} from 'framer-motion'
 import DynamicInvestmentGridHeaders from '../components/investmentGrid/dynamicInvestmentGridHeaders'
 import AccountBalanceGrid from '../components/userAccounts/accountBalanceGrid'
@@ -256,7 +256,7 @@ export default function Dashboard() {
       </button>
       <input value={tickerInput} onChange={(event)=>handleInput(event)} onKeyDown={(event)=>submit(event)} />
       <div className="flex flex-wrap h-max justify-around px-2 py-6 gap-x-1 gap-y-10">
-        {chartComponent()}
+        <MainChart/>
         {investmentGrid()}
         {balanceGrid()}
 
