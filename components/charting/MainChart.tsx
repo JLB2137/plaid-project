@@ -5,7 +5,7 @@ import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/solid'
 import {motion} from 'framer-motion'
 
 export default function MainChart() { //need to add stock as input here
-    const {stockPricing, companyName,selectedPrice, initialRangePrice} = useFinancialsContext()
+    const {stockPricing, stockBalance, stockIncome, stockCashFlow, companyName,selectedPrice, initialRangePrice} = useFinancialsContext()
     const PercentageArrow = () => {
       if(initialRangePrice!>=selectedPrice!){
       return (
@@ -29,7 +29,7 @@ export default function MainChart() { //need to add stock as input here
       }
     }
     
-    if(stockPricing){
+    if(stockPricing && stockBalance && stockIncome && stockCashFlow){
       return (
         <div className="w-7/12 flex-col items-center">
           <h2 className="text-left text-2xl">{companyName}</h2>
@@ -37,7 +37,7 @@ export default function MainChart() { //need to add stock as input here
           <h2 className="text-left text-lg">${numberFormatting(selectedPrice!)}</h2>
           <PercentageArrow/>
           <div className="w-full h-3/4">
-            <LineChart pricing={stockPricing}/>
+            <LineChart />
           </div>
         </div>)
     }else{

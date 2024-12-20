@@ -26,8 +26,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     requestQueue.enqueue(async () => {
       try {
     
-        //const request = await pricing(ticker, startDate, endDate, APIKEY);
-        const request = TSLAStockMock
+        const request = await pricing(ticker, startDate, endDate, APIKEY);
+        //const request = TSLAStockMock
         //console.log('ticker',ticker,'historicalData',request)
         console.log('requestING',request)
         res.status(200).json({

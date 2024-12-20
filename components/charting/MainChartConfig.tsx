@@ -13,6 +13,7 @@ import React, { useRef, useMemo, useEffect, FC } from 'react';
 import { numberFormatting } from '../../lib/front-end/numberTextFormatting';
 import { useFinancialsContext } from '../../context/FinancialsContext';
 import { ChartData } from '../../types/types';
+import { FastGraphsCalculations } from '../../lib/api/stockInformation/pe-calcs';
 
 // Register required Chart.js components
 ChartJS.register(
@@ -32,27 +33,43 @@ interface LineChartProps {
 }
 
 
-const LineChart = ({ pricing } ) => {
+const LineChart = ({ } ) => {
   const chartRef = useRef(null);
 
 
   // Accessing context
-  const { setSelectedPrice, setInitialRangePrice } = useFinancialsContext();
-  if(!pricing){
+  const { stockPricing, stockBalance, stockIncome, stockCashFlow,setSelectedPrice, setInitialRangePrice } = useFinancialsContext();
+  if(!stockPricing){
     return <div></div>
   }
+
+  const PEGraphing = new FastGraphsCalculations
+
+  PEGraphing.setHistoricalData(stockIncome,stockPricing,stockCashFlow,stockBalance)
+
+  PEGraphing.calculatePEMultiple()
+
+  const lines = PEGraphing.computeLines()
+
+  useEffect(()=> {
+    console.log('lines',lines)
+  },[])
+
+
+
+
 
   // Extract and memoize dates and prices
   const { dates, prices } = useMemo(() => {
     const dates = [];
     const prices = [];
-
-    for (let i = 0; i < pricing.length; i++) {
-        dates.push(pricing[i].date);
-        prices.push(pricing[i].close);
+    console.log('pricing,set',stockPricing)
+    for (let i = stockPricing.length-1; i >= 0; i--) {
+        dates.push(stockPricing[i].date);
+        prices.push(stockPricing[i].close);
     }
     return { dates, prices };
-  }, [pricing]);
+  }, [stockPricing]);
 
   // Set initial range price and selected price on load
   useEffect(() => {
