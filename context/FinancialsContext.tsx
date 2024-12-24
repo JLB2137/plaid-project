@@ -17,10 +17,10 @@ interface FinancialInformationContextProps {
     companyName: string | undefined
     setCompanyName: React.Dispatch<React.SetStateAction<string | undefined>>
     selectedPrice: number | undefined
-    setSelectedPrice: React.Dispatch<React.SetStateAction<number | undefined>>
-    initialRangePrice: number | undefined
-    setInitialRangePrice: React.Dispatch<React.SetStateAction<number | undefined>>
-    stockFinancials: number | undefined //will need to be updated after route built
+    // setSelectedPrice: React.Dispatch<React.SetStateAction<number | undefined>>
+    // initialRangePrice: number | undefined
+    // setInitialRangePrice: React.Dispatch<React.SetStateAction<number | undefined>>
+    // stockFinancials: number | undefined //will need to be updated after route built
     setStockFinancials: React.Dispatch<React.SetStateAction<string | undefined>>
 }
 
@@ -42,8 +42,8 @@ export function FinancialInformationProvider ({children}:{children: ReactNode}) 
     const [stockIncome, setStockIncome] = useState(undefined)
     const [stockBalance, setStockBalance] = useState(undefined)
     const [stockCashFlow, setStockCashFlow] = useState(undefined)
-    const [selectedPrice, setSelectedPrice] = useState<number | undefined>(undefined)
-    const [initialRangePrice, setInitialRangePrice] = useState<number | undefined>(undefined)
+    // const [selectedPrice, setSelectedPrice] = useState<number | undefined>(undefined)
+    // const [initialRangePrice, setInitialRangePrice] = useState<number | undefined>(undefined)
     //should add balances and such to this
 
 
@@ -90,10 +90,10 @@ export function FinancialInformationProvider ({children}:{children: ReactNode}) 
             setTicker,
             companyName,
             setCompanyName,
-            selectedPrice,
-            setSelectedPrice,
-            initialRangePrice,
-            setInitialRangePrice,
+            // selectedPrice,
+            // setSelectedPrice,
+            // initialRangePrice,
+            // setInitialRangePrice,
             stockFinancials,
             setStockFinancials,
             stockIncome,

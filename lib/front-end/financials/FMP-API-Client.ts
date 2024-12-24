@@ -11,8 +11,8 @@ export async function clientPricing(ticker:string){
         body: JSON.stringify({
           method: 'pricing',
           ticker: ticker,
-          startDate: '2024-04-10', //should be adjusted
-          endDate: '2021-04-10', //should be adjusted
+          startDate: '2021-04-10', //should be adjusted
+          endDate: '2024-04-10', //should be adjusted
         })
       })
       const response = await request.json()

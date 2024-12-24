@@ -33,27 +33,28 @@ interface LineChartProps {
 }
 
 
-const LineChart = ({ } ) => {
+const LineChart = ({ setSelectedPrice, setInitialRangePrice } ) => {
   const chartRef = useRef(null);
 
 
   // Accessing context
-  const { stockPricing, stockBalance, stockIncome, stockCashFlow,setSelectedPrice, setInitialRangePrice } = useFinancialsContext();
+  const { stockPricing, stockBalance, stockIncome, stockCashFlow } = useFinancialsContext();
+  
   if(!stockPricing){
     return <div></div>
   }
 
-  const PEGraphing = new FastGraphsCalculations
+  // const PEGraphing = new FastGraphsCalculations
 
-  PEGraphing.setHistoricalData(stockIncome,stockPricing,stockCashFlow,stockBalance)
+  // PEGraphing.setHistoricalData(stockIncome,stockPricing,stockCashFlow,stockBalance)
 
-  PEGraphing.calculatePEMultiple()
+  // PEGraphing.calculatePEMultiple()
 
-  const lines = PEGraphing.computeLines()
+  // const lines = PEGraphing.computeLines()
 
-  useEffect(()=> {
-    console.log('lines',lines)
-  },[])
+  // useEffect(()=> {
+  //   console.log('lines',lines)
+  // },[])
 
 
 
@@ -66,7 +67,7 @@ const LineChart = ({ } ) => {
     console.log('pricing,set',stockPricing)
     for (let i = stockPricing.length-1; i >= 0; i--) {
         dates.push(stockPricing[i].date);
-        prices.push(stockPricing[i].close);
+        prices.push(stockPricing[i].adjClose);
     }
     return { dates, prices };
   }, [stockPricing]);
@@ -77,7 +78,7 @@ const LineChart = ({ } ) => {
       setInitialRangePrice(prices[0]);
       setSelectedPrice(prices[prices.length - 2]);
     }
-  }, [prices, setInitialRangePrice, setSelectedPrice]);
+  }, [prices]);
 
   // Memoize line color
   const lineColoring = useMemo(
@@ -198,7 +199,7 @@ const LineChart = ({ } ) => {
         },
       },
     }),
-    [dates, lineColoring, prices, setSelectedPrice]
+    [dates, lineColoring, prices]
   );
 
   // Memoize custom plugin

@@ -15,29 +15,29 @@ type Dates = string[]
 type Prices = number[]
 
 const LineChart = ({ pricing }) => {
+
+  // console.log('pricing',pricing, 'testing')
   
-  if (!pricing||!pricing.apiResponse) {
+  if (!pricing) {
     return <div>Charting for this Asset is Unavailable</div>;
   }
+
+  // console.log('passed')
 
   const chartRef = useRef(null);
 
   const { dates , prices } = useMemo(() => {
     const dates: Dates = [];
     const prices: Prices = [];
-    const symbolInformation = pricing.apiResponse;
+    const symbolInformation = pricing.response.historical;
 
     if (!symbolInformation) {
       return { dates: [], prices: [] };
     }
 
     for (let i = 0; i < symbolInformation.length; i++) {
-      for (let j = 0; j < symbolInformation[i].timestamp.length; j++) {
-        dates.push(
-          new Date(symbolInformation[i].timestamp[j])
-        );
-        prices.push(symbolInformation[i].indicators.adjclose[0].adjclose[j]);
-      }
+        dates.push(symbolInformation[i].date)
+        prices.push(symbolInformation[i].adjClose)
     }
 
     return { dates, prices };

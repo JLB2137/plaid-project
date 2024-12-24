@@ -16,6 +16,7 @@ import { useRouter } from "next/router";
 import '../styles/Home.module.css'
 import consolidatedSecurityHoldings from "../lib/front-end/plaid/consolidatedSecurityHoldings";
 import { flexBoxItems, flexBoxScrollBars } from "../styles/constants";
+import {InvestmentGrid} from '../components/investmentGrid/investmentGridConfig'
 
 
 export default function Dashboard() {
@@ -141,52 +142,7 @@ export default function Dashboard() {
 
   }
 
-  const investmentGrid = () => {
-
-    if(!investments?.holdings){
-      return (
-        <div>
-          <p>Loading...</p>
-        </div>
-      )
-    }else if(investments.holdings.length==0){
-      return (
-        <div>
-          <p>Your holdings don't exist, please link accounts</p>
-        </div>
-      )
-    }else{
-
-      console.log('investments',investments)
-      let institutionalHoldings = []
-      for(let i=0;i<investments.holdings.length;i++){
-        if(!investments.holdings[i].error_code){
-          institutionalHoldings.push(securityHoldings(investments.holdings[i].holdings,investments.holdings[i].securities))
-        }
-        
-      }
-      console.log('institution',institutionalHoldings)
-      let consolidatedHoldings = consolidatedSecurityHoldings(institutionalHoldings)
-      console.log('consolidated',consolidatedHoldings)
-
-
-        return (
-          <motion.div
-          key="investment grid"
-          initial={{opacity: 0, y:50}}
-          animate={{opacity: 1, y:0}}
-          transition={{duration: .5, ease: "easeInOut"}}
-          className={flexBoxItems+ 'mt-14'}
-          >
-            {Object.entries(consolidatedHoldings).map(([key, value]) => (
-                <DynamicInvestmentGrid key={key} investment={value}/>
-              ))
-            }
-          </motion.div>
-        )
-
-  }
-  }
+  
 
   const handleInput = (event: ChangeEvent<HTMLInputElement>) => {
     const value = (event.target.value)
@@ -258,6 +214,7 @@ export default function Dashboard() {
       <div className="flex flex-wrap h-max justify-around px-2 py-6 gap-x-1 gap-y-10">
         <MainChart/>
         {balanceGrid()}
+        <InvestmentGrid/>
 
       </div>
     </div>

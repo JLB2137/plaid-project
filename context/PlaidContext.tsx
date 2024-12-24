@@ -34,10 +34,11 @@ export function PlaidProvider ({children}:{children: ReactNode}) {
     //should add balances and such to this
     useEffect(()=> {
         const cacheImport = async () => {
+            console.log('cache import running')
             if(user){
-                const investments = await getInvestmentsCache(user)
-                if(investments.holdings){
-                    setInvestments(investments)
+                const investmentCache = await getInvestmentsCache(user)
+                if(investmentCache.holdings){
+                    setInvestments(investmentCache)
                 }
                 const balances = await getBalanceCache(user)
                 //console.log('balances retr',balances.accounts)
