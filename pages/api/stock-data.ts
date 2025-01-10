@@ -25,7 +25,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     requestQueue.enqueue(async () => {
       try {
-    
+
+        //should use statistics for financial modeling to confidence test whether the graph follows the lines well
+        
+        // let request
+        // if()
         const request = await pricing(ticker, startDate, endDate, APIKEY);
         //const request = TSLAStockMock
         console.log('ticker',ticker,'historicalData',request)
